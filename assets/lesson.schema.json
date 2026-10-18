@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cognitive Learning Flow lesson v0.1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "domain",
+    "problem",
+    "groundTruth",
+    "scenes",
+    "assessment",
+    "sourceNotes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "problem": {
+      "type": "object",
+      "required": [
+        "statement",
+        "units"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string"
+        },
+        "units": {
+          "type": "string"
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "predecessors",
+              "optimistic",
+              "mostLikely",
+              "pessimistic"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "predecessors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "optimistic": {
+                "type": "number"
+              },
+              "mostLikely": {
+                "type": "number"
+              },
+              "pessimistic": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "groundTruth": {
+      "type": "object",
+      "properties": {
+        "expectedDuration": {
+          "type": "number"
+        },
+        "criticalPaths": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "criticalVariance": {
+          "type": "number"
+        },
+        "deadline": {
+          "type": "object",
+          "properties": {
+            "day": {
+              "type": "number"
+            },
+            "approxProbability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "assumptions": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "phase",
+          "goal",
+          "rationale",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "phase": {
+            "enum": [
+              "identify",
+              "understand",
+              "represent",
+              "plan",
+              "execute",
+              "verify",
+              "interpret",
+              "transfer"
+            ]
+          },
+          "goal": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "write",
+                    "calculator",
+                    "diagram",
+                    "highlight",
+                    "question",
+                    "reveal"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "expression": {
+                  "type": "string"
+                },
+                "expected": {
+                  "type": "number"
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "checkpoint": {
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "type": "string"
+              },
+              "answer": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "tolerance": {
+                "type": "number"
+              },
+              "hint": {
+                "type": "string"
+              },
+              "feedback": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "stem",
+              "options",
+              "correctOptionId",
+              "explanation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "stem": {
+                "type": "string"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "text",
+                    "feedback"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "feedback": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "correctOptionId": {
+                "type": "string"
+              },
+              "explanation": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sourceNotes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

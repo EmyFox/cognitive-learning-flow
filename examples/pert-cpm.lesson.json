@@ -1,0 +1,478 @@
+{
+  "schemaVersion": "0.1",
+  "id": "pert-cpm-factory-demo",
+  "title": "PERT/CPM: puesta en marcha de una línea de producción",
+  "domain": "industrial-engineering",
+  "objectives": [
+    "Estimar duración PERT y varianza",
+    "Obtener pases hacia adelante y atrás",
+    "Identificar actividades críticas y justificar la ruta"
+  ],
+  "problem": {
+    "statement": "Una planta industrial prepara una línea nueva. Nueve actividades tienen precedencias y tiempos optimista, más probable y pesimista. Estima el plazo, las holguras y la ruta crítica.",
+    "units": "días",
+    "activities": [
+      {
+        "id": "A",
+        "name": "Diagnóstico",
+        "predecessors": [],
+        "optimistic": 2,
+        "mostLikely": 3,
+        "pessimistic": 4
+      },
+      {
+        "id": "B",
+        "name": "Diseño",
+        "predecessors": [
+          "A"
+        ],
+        "optimistic": 2,
+        "mostLikely": 4,
+        "pessimistic": 6
+      },
+      {
+        "id": "C",
+        "name": "Selección",
+        "predecessors": [
+          "A"
+        ],
+        "optimistic": 3,
+        "mostLikely": 5,
+        "pessimistic": 7
+      },
+      {
+        "id": "D",
+        "name": "Preparación",
+        "predecessors": [
+          "B"
+        ],
+        "optimistic": 4,
+        "mostLikely": 6,
+        "pessimistic": 8
+      },
+      {
+        "id": "E",
+        "name": "Instalación",
+        "predecessors": [
+          "C"
+        ],
+        "optimistic": 5,
+        "mostLikely": 7,
+        "pessimistic": 9
+      },
+      {
+        "id": "H",
+        "name": "Capacitación",
+        "predecessors": [
+          "B"
+        ],
+        "optimistic": 1,
+        "mostLikely": 2,
+        "pessimistic": 3
+      },
+      {
+        "id": "F",
+        "name": "Integración",
+        "predecessors": [
+          "D",
+          "E"
+        ],
+        "optimistic": 2,
+        "mostLikely": 3,
+        "pessimistic": 4
+      },
+      {
+        "id": "G",
+        "name": "Pruebas",
+        "predecessors": [
+          "F"
+        ],
+        "optimistic": 2,
+        "mostLikely": 4,
+        "pessimistic": 6
+      },
+      {
+        "id": "I",
+        "name": "Arranque",
+        "predecessors": [
+          "G",
+          "H"
+        ],
+        "optimistic": 1,
+        "mostLikely": 2,
+        "pessimistic": 3
+      }
+    ]
+  },
+  "groundTruth": {
+    "expectedDuration": 24,
+    "criticalPaths": [
+      [
+        "A",
+        "C",
+        "E",
+        "F",
+        "G",
+        "I"
+      ]
+    ],
+    "criticalVariance": 1.6666666666666667,
+    "deadline": {
+      "day": 26,
+      "approxProbability": 0.9394,
+      "assumptions": "Duraciones independientes de la ruta crítica fija, aproximación normal; otras rutas podrían cambiar de criticidad."
+    }
+  },
+  "scenes": [
+    {
+      "id": "01-identificar",
+      "phase": "identify",
+      "goal": "Definir lo que se debe resolver",
+      "rationale": "Conviene distinguir duración, holgura y ruta crítica antes de operar.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Objetivos: duración del proyecto, holguras y ruta crítica"
+        },
+        {
+          "type": "highlight",
+          "target": [
+            "A",
+            "I"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02-red",
+      "phase": "represent",
+      "goal": "Dibujar relaciones de precedencia",
+      "rationale": "Las tareas paralelas no se suman automáticamente.",
+      "actions": [
+        {
+          "type": "diagram",
+          "text": "A→B→D→F→G→I; A→C→E→F→G→I; B→H→I"
+        },
+        {
+          "type": "highlight",
+          "target": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "H",
+            "F",
+            "G",
+            "I"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03-pert",
+      "phase": "plan",
+      "goal": "Calcular duración esperada de E",
+      "rationale": "PERT asigna peso cuatro a la estimación más probable.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "E: a=5, m=7, b=9; te=(a+4m+b)/6"
+        },
+        {
+          "type": "calculator",
+          "expression": "(5+4*7+9)/6",
+          "expected": 7,
+          "keys": [
+            "(",
+            "5",
+            "+",
+            "4",
+            "×",
+            "7",
+            "+",
+            "9",
+            ")",
+            "÷",
+            "6",
+            "="
+          ]
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuál es te(E) en días?",
+        "answer": 7,
+        "tolerance": 0.001,
+        "hint": "Sustituye en (a+4m+b)/6.",
+        "feedback": "La duración esperada de E es 7 días."
+      }
+    },
+    {
+      "id": "04-adelante",
+      "phase": "execute",
+      "goal": "Obtener el inicio temprano F",
+      "rationale": "Como F depende de D y E, debe esperar a la última en terminar.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "EF(D)=13; EF(E)=15; ES(F)=max(13,15)=15"
+        },
+        {
+          "type": "highlight",
+          "target": [
+            "D",
+            "E",
+            "F"
+          ]
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuánto vale ES(F)?",
+        "answer": 15,
+        "tolerance": 0.001,
+        "hint": "En una convergencia, toma el mayor EF.",
+        "feedback": "F no puede empezar antes del día 15."
+      }
+    },
+    {
+      "id": "05-fin",
+      "phase": "execute",
+      "goal": "Obtener duración total",
+      "rationale": "El arranque I espera a G y H; G termina al día 22.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "ES(I)=max(EF(G),EF(H))=max(22,9)=22"
+        },
+        {
+          "type": "calculator",
+          "expression": "22+2",
+          "expected": 24,
+          "keys": [
+            "2",
+            "2",
+            "+",
+            "2",
+            "="
+          ]
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿En qué día termina el proyecto?",
+        "answer": 24,
+        "tolerance": 0.001,
+        "hint": "Suma ES(I)+te(I).",
+        "feedback": "El plazo esperado es 24 días."
+      }
+    },
+    {
+      "id": "06-atras",
+      "phase": "execute",
+      "goal": "Explicar el pase hacia atrás",
+      "rationale": "Se usa LF(I)=24 y se resta la duración de I.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "LS(I)=24−2=22"
+        },
+        {
+          "type": "calculator",
+          "expression": "24-2",
+          "expected": 22,
+          "keys": [
+            "2",
+            "4",
+            "−",
+            "2",
+            "="
+          ]
+        }
+      ]
+    },
+    {
+      "id": "07-holgura",
+      "phase": "verify",
+      "goal": "Comparar inicio tardío y temprano",
+      "rationale": "La diferencia LS−ES permite saber cuánto puede retrasarse una actividad.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Holgura(B)=5−3=2 días"
+        },
+        {
+          "type": "calculator",
+          "expression": "5-3",
+          "expected": 2,
+          "keys": [
+            "5",
+            "−",
+            "3",
+            "="
+          ]
+        },
+        {
+          "type": "highlight",
+          "target": [
+            "B",
+            "H"
+          ]
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuál es la holgura de H?",
+        "answer": 13,
+        "tolerance": 0.001,
+        "hint": "LS(H)−ES(H)=20−7.",
+        "feedback": "H admite 13 días de retraso total."
+      }
+    },
+    {
+      "id": "08-ruta",
+      "phase": "interpret",
+      "goal": "Interpretar ruta crítica",
+      "rationale": "Las actividades de holgura cero forman una secuencia continua de duración total.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "A→C→E→F→G→I"
+        },
+        {
+          "type": "calculator",
+          "expression": "3+5+7+3+4+2",
+          "expected": 24,
+          "keys": [
+            "3",
+            "+",
+            "5",
+            "+",
+            "7",
+            "+",
+            "3",
+            "+",
+            "4",
+            "+",
+            "2",
+            "="
+          ]
+        },
+        {
+          "type": "highlight",
+          "target": [
+            "A",
+            "C",
+            "E",
+            "F",
+            "G",
+            "I"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "09-probabilidad",
+      "phase": "interpret",
+      "goal": "Explicar el alcance de un pronóstico PERT",
+      "rationale": "La aproximación normal no es garantía y depende de supuestos.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Varianza en la ruta crítica = 5/3 días²"
+        },
+        {
+          "type": "write",
+          "text": "P(terminar ≤ día 26) ≈ 93.9% bajo los supuestos dados"
+        }
+      ]
+    },
+    {
+      "id": "10-transferencia",
+      "phase": "transfer",
+      "goal": "Resolver un cambio de datos sin guía",
+      "rationale": "La transferencia exige aplicar el procedimiento a un caso nuevo.",
+      "actions": [
+        {
+          "type": "question",
+          "text": "Si te(E) aumenta un día, ¿cuál sería el nuevo plazo y por qué?"
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "items": [
+      {
+        "id": "q1",
+        "stem": "¿Cuál es la duración esperada de la actividad E?",
+        "options": [
+          {
+            "id": "A",
+            "text": "6 días",
+            "feedback": "Revisa la ponderación de m."
+          },
+          {
+            "id": "B",
+            "text": "7 días",
+            "feedback": "Correcto: (5+4×7+9)/6 = 7."
+          },
+          {
+            "id": "C",
+            "text": "8 días",
+            "feedback": "Se realizó una sustitución incorrecta."
+          }
+        ],
+        "correctOptionId": "B",
+        "explanation": "La fórmula PERT es te=(a+4m+b)/6."
+      },
+      {
+        "id": "q2",
+        "stem": "¿Por qué ES(F)=15?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Por el máximo EF de las predecesoras",
+            "feedback": "Correcto: F espera a D y E."
+          },
+          {
+            "id": "B",
+            "text": "Por el mínimo EF",
+            "feedback": "No puede empezar antes de ambas actividades."
+          },
+          {
+            "id": "C",
+            "text": "Por la suma de EF",
+            "feedback": "Ramas paralelas no se suman."
+          }
+        ],
+        "correctOptionId": "A",
+        "explanation": "ES(F)=max(13,15)=15."
+      },
+      {
+        "id": "q3",
+        "stem": "¿Cuál es la ruta crítica?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A-B-D-F-G-I",
+            "feedback": "B y D tienen holgura total positiva."
+          },
+          {
+            "id": "B",
+            "text": "A-B-H-I",
+            "feedback": "Esta ruta no cubre el plazo del proyecto."
+          },
+          {
+            "id": "C",
+            "text": "A-C-E-F-G-I",
+            "feedback": "Correcto: suma 24 días y es continua."
+          }
+        ],
+        "correctOptionId": "C",
+        "explanation": "La ruta crítica es la secuencia de holgura cero que totaliza 24 días."
+      }
+    ]
+  },
+  "sourceNotes": [
+    "Problema sintético didáctico, no afiliado a EGEL ni Ceneval.",
+    "Fórmulas PERT: te=(a+4m+b)/6, varianza=((b-a)/6)^2.",
+    "La probabilidad de plazo corresponde a aproximación normal de la ruta crítica fija."
+  ]
+}
