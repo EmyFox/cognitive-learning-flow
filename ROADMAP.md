@@ -123,3 +123,17 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [x] Guía de diseño y tokens reutilizables por otros agentes.
 - [ ] Tema de pizarrón y variantes de accesibilidad ampliadas.
 - [ ] Auditoría de contraste automatizada y validación visual de todos los escenarios.
+
+
+## v0.9 · Coreografía matemática de tinta
+
+- [x] Contrato de tres fases para ecuaciones verificadas.
+- [x] Proyecciones puras que se pueden insertar en HTML existentes.
+- [x] Fórmula, cuaderno, calculadora, red y estación gobernados por un timeline compartido.
+- [x] Subrayado SVG dependiente del estado; no avanza durante pausa.
+- [x] Scrubber continuo para buscar un evento exacto y reconstrucción determinista.
+- [x] Foco visual sobre tareas y transferencia hacia estaciones con etiquetas explícitas.
+- [x] Contraste de modos y soporte de movimiento reducido.
+- [ ] Movimiento de glifos basado en trayectorias reales de fuente vectorial, opcional.
+- [ ] Auditoría de accesibilidad WCAG y pruebas de aprendizaje con estudiantes.
+- [ ] Más dominios: EOQ visual, colas multiserver y control estadístico de procesos.

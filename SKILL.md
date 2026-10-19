@@ -218,3 +218,12 @@ npm run build:school
 ```
 
 El caso está en `examples/line-balancing.school.json`. La API reutilizable de montaje está en `runtime/school-notebook.js`; el motor puro en `runtime/line-balancing.js`. Para un HTML preexistente, **buscar un contenedor de destino y montarlo**, no sustituir el documento completo ni añadir estilos globales. Para nuevas materias, implementa un solver de dominio verificado y construye etapas a partir de sus resultados; no reutilices una gráfica de estaciones para representar un concepto que no tenga esas estaciones.
+
+
+## Motor de tinta semántica sincronizada · v0.9
+
+Antes de generar una animación, verifica matemáticamente cada ecuación con un solver separado. Usa `runtime/ink-choreography.js` (`CLFInk.verify`) para validar fórmulas aritméticas; `project` revela **modelo → sustitución → resultado** a medida que avanza el mismo cursor de eventos del cuaderno y la calculadora. No avances la fórmula por un temporizador ajeno al timeline.
+
+Para clases en diseño escolar, usa `CLFSchoolNotebook` y consulta `references/INK_CHOREOGRAPHY.md`. El trazo de tinta debajo de la fórmula y los resaltados responden a estado calculado (cursor, paso y resultado); al hacer seek reconstruyen la misma proyección. En el diagrama solo se resalta la tarea de la etapa actual, y la estación se revela cuando el evento `station` ocurre. Con `prefers-reduced-motion`, eliminar animación continua sin quitar texto.
+
+Los motores de dominio siguen siendo la fuente única de verdad. No inferir efectividad pedagógica solo a partir de pruebas técnicas; comprobar también con estudiantes.

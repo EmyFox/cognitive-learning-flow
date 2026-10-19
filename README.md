@@ -245,3 +245,18 @@ npm run build:school
 **Inserción sin layout impuesto:** `CLFSchoolNotebook.mount(host, lesson)` monta la libreta en un único nodo del HTML anfitrión, usando Shadow DOM. No reescribe CSS ajeno ni obliga a elegir modo pantalla completa. El proyecto mantiene su navegación y decide la posición; la piel escolar es optativa.
 
 Consulta [la guía de cuaderno](references/SCHOOL_NOTEBOOK.md) y el [HTML anfitrión de ejemplo](examples/school-notebook-host.html). La versión mantiene todos los scripts, validadores y ejemplos de v0.6.
+
+
+## v0.9 · Fórmulas y tinta sincronizadas con razonamiento
+
+Ahora la libreta integra `runtime/ink-choreography.js`, un módulo **puro y sin dependencias** que valida cada ecuación contra un evaluador seguro y proyecta tres etapas: **modelo, sustitución, resultado**. El control de línea temporal controla tanto la fórmula como la tinta, notas, calculadora, tareas destacadas y asignación de estaciones. La nueva barra de progreso es navegable, admite pausa y avance/retroceso determinista.
+
+```bash
+npm test
+npm run build:school
+# Archivo offline: dist/school-line-balancing.html
+```
+
+**No imponer interfaz:** `CLFSchoolNotebook.mount(host, lesson)` sigue siendo opcional y usa Shadow DOM. Para integraciones parciales, `CLFInk.project(equation, phase)` puede alimentar cualquier HTML existente sin adoptar el layout de la libreta. Ver [coreografía de tinta](references/INK_CHOREOGRAPHY.md).
+
+**Límite:** El trazo es un subrayado SVG animado por eventos matemáticos, no una simulación física exacta del movimiento de una mano. El método de balanceo usa una heurística, no optimización exacta.
