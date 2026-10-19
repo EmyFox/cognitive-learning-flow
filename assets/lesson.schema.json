@@ -191,6 +191,39 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "why": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "callout": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "focus": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true
+                },
+                "animation": {
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "write",
+                        "calculate",
+                        "focus",
+                        "draw",
+                        "predict",
+                        "verify"
+                      ]
+                    }
+                  }
                 }
               }
             }

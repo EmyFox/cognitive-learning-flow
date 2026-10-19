@@ -31,7 +31,8 @@ cognitive-learning-flow/
 │   └── pert-cpm.lesson.json
 ├── runtime/
 │   ├── core.js
-│   ├── player.js
+│   ├── kit.js           # Recursos en Shadow DOM para páginas existentes
+│   ├── player.js        # Reproductor de página completa (opcional)
 │   └── styles.css
 ├── scripts/
 │   ├── validate-lesson.mjs
@@ -130,20 +131,21 @@ Puedes personalizar apariencia con las variables CSS `--accent`, `--bg`, `--pane
 
 Se ejecutó `npm test` (18 pruebas), `npm run build:example`, y pruebas de flujo reales en Chromium en tamaños escritorio, 390 px y 375 px: pausa sin escritura adicional, salto de escena, respuestas guiadas, evaluación sin revelado previo ni errores JavaScript, y sin overflow horizontal. El CI ejecuta pruebas unitarias; el test de Chromium fue local y aún no se automatizó en GitHub Actions.
 
-## v0.3 · Kit de recursos para HTML y flujos existentes
+## v0.3 · Recursos embebibles en cualquier HTML existente
 
-CLF **ya no impone una página completa**. Genera recursos seleccionables que puedes colocar libremente en HTML o conectar a flujos existentes.
+**Ya no es necesario que CLF organice toda la pantalla.** Puedes dejar intacto tu diseño, tus componentes, navegación y scripts y seleccionar solo los recursos educativos que necesita cada bloque.
 
-```bash
-npm run build:resources   # JS + lección + manifest + ejemplo
-npm run build:integrated  # insertar solo donde marques data-clf
-npm run build:example     # página autónoma anterior
+```sh
+# Generar assets + manifest; distribuye los recursos a tu gusto
+npm run build:resources
+
+# Integrar en un HTML existente con los contenedores data-clf elegidos
+npm run build:integrated
+
+# El reproductor completo sigue disponible por compatibilidad
+npm run build:example
 ```
 
-API: `CLFKit.create(lesson)` con `mount(tipo,host)`, `seekSceneId(id)`, `connectWorkflow({...})`, `onChange(fn)`, `play()`, `pause()`, `destroy()` y modos de demostración, práctica y evaluación.
+La API `CLFKit.create(lesson)` expone `mount(tipo, host)`, `setMode`, `seekSceneId`, `connectWorkflow`, `onChange`, `play`, `pause`, `destroy`, además de acciones guiadas y evaluación. Cada recurso usa Shadow DOM, sin CSS global. La integración automática preserva el archivo fuente y requiere un destino separado; `--force` permite reemplazar solamente la salida generada.
 
-Los nueve recursos son `notebook`, `calculator`, `diagram`, `controls`, `steps`, `transcript`, `guided`, `assessment` y `status`.
-
-Cada recurso utiliza **Shadow DOM** para encapsular CSS; no modifica estilos, rutas ni navegación del anfitrión. La CLI no modifica el HTML original ni un destino existente sin `--force`. Para múltiples lecciones, usa instancias API distintas.
-
-Consulta [Integración y flujos](references/EMBEDDING.md) y [HTML anfitrión](examples/existing-page.html). Límites: sin auditoría WCAG formal, renderizadores específicos de otros dominios ni estudios pedagógicos.
+Consulta [referencias de integración](references/EMBEDDING.md) y [el ejemplo de web anfitriona](examples/existing-page.html). Aún no se ha hecho una auditoría formal WCAG ni un estudio de eficacia didáctica.

@@ -127,6 +127,10 @@ export function validateLesson(lesson) {
     insist(scene.phase && scene.goal && scene.rationale && Array.isArray(scene.actions)&&scene.actions.length,`Escena incompleta: ${scene.id}`);
     for(const action of scene.actions){
       insist(allowed.has(action.type),`Tipo de acción inválido: ${action.type}`);
+      if(action.why!==undefined) insist(typeof action.why==='string'&&action.why.trim(),`Por qué vacío: ${scene.id}`);
+      if(action.callout!==undefined) insist(typeof action.callout==='string'&&action.callout.trim(),`Narración vacía: ${scene.id}`);
+      if(action.focus!==undefined) insist(Array.isArray(action.focus)&&action.focus.every(t=>typeof t==='string')&&new Set(action.focus).size===action.focus.length,`Foco inválido: ${scene.id}`);
+      if(action.animation!==undefined) insist(action.animation&&['write','calculate','focus','draw','predict','verify'].includes(action.animation.kind),`Coreografía inválida: ${scene.id}`);
       if(action.type==='calculator') {
         insist(typeof action.expression==='string' && typeof action.expected==='number',`Calculadora incompleta: ${scene.id}`);
         insist(near(arithmetic(action.expression),action.expected,1e-5),`Calculadora incorrecta: ${scene.id}`);

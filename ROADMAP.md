@@ -57,14 +57,14 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - Un HTML de cliente no reemplaza un sistema de evaluación seguro.
 - Ningún framework, marca ni negocio es una dependencia obligatoria.
 
-## v0.3 · Recursos embebibles (implementación inicial)
+## v0.3 · Kit embebible independiente (implementación inicial)
 
-- [x] Montaje independiente de nueve recursos en contenedores elegidos.
-- [x] Shadow DOM, sin hojas CSS globales ni layout impuesto.
-- [x] Exportador y manifiesto de recursos con ejemplo.
-- [x] CLI opt-in para HTML existente con `data-clf`, sin reorganización.
-- [x] Sincronización reversible por eventos de flujos externos.
-- [x] Pruebas de seguridad, aislamiento de modalidades y comportamiento móvil.
-- [ ] Adaptadores React/Vue y SSR.
-- [ ] Renderizadores EOQ, SPC, pronósticos y programación lineal.
-- [ ] Optimizar render, automatizar navegador en CI y auditar accesibilidad.
+- [x] Recursos individuales montables por nombre en cualquier contenedor.
+- [x] Shadow DOM, sin estilos globales y sin imponer layout.
+- [x] CLI para extraer recursos y manifest con ejemplo aislado.
+- [x] Integración opt-in en HTML existente por atributos `data-clf` sin reorganizar.
+- [x] Sincronización con eventos de flujos preexistentes y desconexión al desmontar.
+- [x] Pruebas automatizadas para aislamiento de modo, seguridad básica y exportación.
+- [ ] Adaptadores específicos para React/Vue/Web Components con SSR.
+- [ ] Mejorar ergonomía del calendario de eventos y motor SVG específico para EOQ/SPC.
+- [ ] Auditoría WCAG y pruebas con estudiantes; minimizar reconstrucción DOM por glifo.
