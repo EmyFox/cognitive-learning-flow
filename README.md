@@ -2,7 +2,7 @@
 
 Skill independiente y reutilizable para agentes de IA que convierten procedimientos de solución en laboratorios HTML interactivos. **No pertenece a Checkfox ni requiere un frontend, backend o nube específicos.**
 
-> **Estado:** v0.1 experimental. Esta versión proporciona la metodología, el contrato de datos, el ejemplo PERT/CPM y el validador. El generador/renderer HTML universal está previsto para una versión futura.
+> **Estado:** v0.2 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
 
 ## ¿Para qué sirve?
 
@@ -29,10 +29,16 @@ cognitive-learning-flow/
 │   └── lesson.schema.json
 ├── examples/
 │   └── pert-cpm.lesson.json
+├── runtime/
+│   ├── core.js
+│   ├── player.js
+│   └── styles.css
 ├── scripts/
-│   └── validate-lesson.mjs
+│   ├── validate-lesson.mjs
+│   └── build-html.mjs
 ├── tests/
-│   └── validate.test.mjs
+│   ├── validate.test.mjs
+│   └── player.test.mjs
 ├── .github/workflows/ci.yml
 ├── package.json
 └── README.md
@@ -77,11 +83,49 @@ El validador revisa el contrato de lección, las expresiones y pulsaciones de la
 
 ## Ruta propuesta
 
-- **v0.2:** motor de escenas HTML/SVG, calculadora real y timeline reversible.
-- **v0.3:** modos guiado y evaluación con aislamiento de estados, pruebas de navegador.
+- **v0.2:** motor de escenas HTML/SVG, calculadora real y timeline reversible (implementación inicial).
+- **v0.3:** profundizar andamiaje y feedback adaptativo, asegurar la evaluación de alto impacto en servidor y automatizar pruebas de navegador.
 - **v0.4:** plantillas para EOQ, control estadístico, pronósticos y PERT con múltiples rutas críticas.
-- **v1.0:** exportación standalone HTML y adaptadores para React u otros sistemas, con QA accesible.
+- **v1.0:** ampliar renderizadores y adaptadores para React u otros sistemas, con QA accesible y estudios de uso.
 
 ## Independencia y licencia
 
 El repositorio no incluye referencias a infraestructura privada ni claves. **No se adjunta licencia de distribución**: el propietario puede decidir después si lo mantiene privado o adopta una licencia open source.
+
+## v0.2 · Motor HTML autónomo disponible
+
+La v0.2 incorpora un motor real, **sin React, Firebase ni CDN**, compatible con el mismo contrato JSON de v0.1:
+
+```sh
+npm run build:example
+# Genera dist/pert-cpm.html; abre el archivo en tu navegador
+
+# O utiliza otra lección que cumpla el contrato JSON:
+node scripts/build-html.mjs ruta/mi-leccion.lesson.json salida/mi-leccion.html
+```
+
+El reproductor integra:
+
+- **Demo**: escritura progresiva, diagrama SVG PERT cuando hay actividades, calculadora sincronizada, reproducir/pausar, siguiente/anterior, velocidad y búsqueda de etapa.
+- **Guiado**: predicción antes del resultado, respuestas con tolerancia, pista y explicación, calculadora manual.
+- **Evaluación**: preguntas sin feedback visible hasta entregar, corrección y puntuación posterior. Un único HTML **no es un examen antifraude**.
+- **Offline**: todos los recursos se incrustan en un único `.html` sin dependencias ni peticiones de red.
+- **Control de estado**: `runtime/core.js` compila eventos y reconstruye notas, calculadora y diagrama desde un cursor independiente de temporizadores.
+
+### Arquitectura de carpetas v0.2
+
+```text
+runtime/
+  core.js       motor puro: cálculo seguro, timeline y snapshot
+  player.js     componentes DOM y modalidades de estudio
+  styles.css    variables CSS personalizables
+scripts/
+  build-html.mjs     exportador HTML autónomo
+  validate-lesson.mjs  validador de datos y solución
+```
+
+Puedes personalizar apariencia con las variables CSS `--accent`, `--bg`, `--panel`, `--text` sin cambiar los modelos matemáticos. La representación SVG de precedencias es específica de los casos con `problem.activities`; el reproductor muestra una alternativa textual para lecciones sin red. **No es un generador universal de diagramas matemáticos arbitrarios**: harán falta renderizadores por dominio.
+
+### Verificación v0.2
+
+Se ejecutó `npm test` (18 pruebas), `npm run build:example`, y pruebas de flujo reales en Chromium en tamaños escritorio, 390 px y 375 px: pausa sin escritura adicional, salto de escena, respuestas guiadas, evaluación sin revelado previo ni errores JavaScript, y sin overflow horizontal. El CI ejecuta pruebas unitarias; el test de Chromium fue local y aún no se automatizó en GitHub Actions.
