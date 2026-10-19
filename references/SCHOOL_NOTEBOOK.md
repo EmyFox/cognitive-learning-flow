@@ -1,6 +1,6 @@
 # Estética de libreta escolar + coreografía cognitiva · CLF v0.7
 
-Esta referencia describe **una opción de presentación**, no un estilo obligatorio. Cuando el usuario pida cuaderno, apuntes de clase o una lección escolar, preservar primero el sistema visual del proyecto anfitrión y ofrecer la piel de libreta como recurso opt-in.
+Esta referencia explica el **tema predeterminado para recursos educativos nuevos** desde v0.8. Cuando el proyecto anfitrión indique una identidad diferente, usarla sin reescribir estilos de la página existente. El tema escolar funciona por defecto dentro de Shadow DOM, no sobre la web completa.
 
 ## El recurso
 

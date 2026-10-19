@@ -16,7 +16,7 @@ export function resources(lesson,directory){
   copyFileSync(join(ROOT,'runtime/simulations.js'),join(dest,'clf-simulations.js'));
   copyFileSync(join(ROOT,'runtime/kit.js'),join(dest,'clf-kit.js'));
   writeFileSync(join(dest,'clf-lesson.js'),'globalThis.CLF_RESOURCE_LESSON='+safeData(lesson)+';\n');
-  const manifest={version:'0.6.0',title:lesson.title,lessonId:lesson.id||'lesson',resourceTypes:types,
+  const manifest={version:'0.8.0',defaultTheme:'school-notebook',themes:['school-notebook','neutral'],title:lesson.title,lessonId:lesson.id||'lesson',resourceTypes:types,
     files:['clf-core.js','clf-simulations.js','clf-kit.js','clf-lesson.js'],
     mount:'const app=CLFKit.create(CLF_RESOURCE_LESSON); app.mount("notebook",document.querySelector("#my-notebook"));',
     warning:'El proyecto anfitrión decide qué componentes montar y en qué lugar. No se modifica su CSS.'};

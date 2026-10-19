@@ -33,6 +33,18 @@ Antes de crear recursos, elige una **gramática visual acorde al dato**: `bar` p
 
 **Regla cognitiva:** los elementos visuales no preceden a las decisiones de solución; las ilustran. Una animación describe operaciones externas verificables, no pensamientos privados.
 
+## Diseño por defecto · Libreta escolar (v0.8)
+
+**REGLA PRIORITARIA DE GENERACIÓN:** para nuevos HTML, widgets, simuladores, clases y demostraciones, usa por defecto la estética `school-notebook`: papel crema cuadriculado, línea de margen rojo, perforaciones de libreta, tinta azul, títulos serif, resaltadores cálidos, calculadora física, notas adhesivas y movimiento con propósito. Es la identidad visual preferida de esta skill, pero **no su marca corporativa ni un layout fijo**.
+
+- Antes de generar, inspecciona si el usuario o la aplicación especificaron un estilo distinto. Las preferencias explícitas del usuario y los estilos existentes prevalecen. No sobrescribas CSS, no cambies layout, no agregues un marco de libreta a toda la web anfitriona: encapsula solo el recurso propio.
+- Si el estilo no se especifica y la actividad es un recurso educativo nuevo, `school-notebook` es el **valor predeterminado**. No solicites confirmación para cada nueva lección.
+- Para integraciones embebidas usa `CLFKit.create(lesson)`; el tema predeterminado ya está aplicado en Shadow DOM. Para neutralidad voluntaria, `CLFKit.create(lesson,{theme:'neutral'})`. Cambia en vivo con `controller.setTheme('neutral')` sin reiniciar el progreso.
+- Para el reproductor de página completa usa `node scripts/build-html.mjs entrada.lesson.json salida.html` (tema escolar por defecto) o `--theme neutral`.
+- Para una clase con balanceo de línea conserva el recurso especial `CLFSchoolNotebook`, sin adaptarlo engañosamente a temas incompatibles. Para otros dominios usa el kit modular y sus visualizaciones verificadas con tema escolar.
+- Consulta `references/DESIGN_SYSTEM.md` y `assets/themes/school-notebook.tokens.json`; mantén contraste, movimiento reducido, secuencia causal y cálculos derivados de una única fuente matemática.
+- La libreta debe **enseñar**, no solo decorar: al enfocar un dato aparece un resaltador, al sustituir una fórmula se muestra la escritura, al calcular se ilumina la tecla y al concluir cambia el diagrama correspondiente. Para evaluar, oculta pistas y soluciones hasta que corresponda.
+
 ## Resultado esperado
 
 Entregar un laboratorio HTML que permita al estudiante:
@@ -101,7 +113,7 @@ Los datos y resultados tienen que concordar en todos los modos y medios. La repr
 - Gráficos SVG con texto legible, tamaño adaptable, leyendas y versión textual; no revelar camino crítico antes de tiempo en evaluación.
 - Respetar `prefers-reduced-motion`, foco visible, accesibilidad con teclado, `aria-live` moderado, zoom y controles táctiles de al menos 44px.
 - Diseñar para pantallas de 375px, 390px y escritorio. Preferir scroll en un área de diagrama cuando sea necesario, nunca cortar contenido.
-- Seguir el sistema visual del **proyecto consumidor**, si existe. Esta skill no tiene paleta ni branding propios obligatorios.
+- El tema base de recursos nuevos es **school-notebook**. Respetar siempre la identidad visual explícita del consumidor; nunca imponer CSS global en integraciones existentes.
 
 ## Reglas específicas de rigor
 
@@ -194,7 +206,7 @@ npm run build:operations:resources
 
 ## v0.7 · Crear recursos visuales con estética de libreta escolar
 
-Usa [references/SCHOOL_NOTEBOOK.md](references/SCHOOL_NOTEBOOK.md) cuando el usuario solicite cuadernos de clase, procedimientos manuscritos, experiencias escolares o demostraciones físicas de Ingeniería Industrial. **No imponer esa piel cuando no se haya pedido.** La skill debe generar el recurso visual y permitir que la aplicación anfitriona lo distribuya libremente.
+Usa [references/SCHOOL_NOTEBOOK.md](references/SCHOOL_NOTEBOOK.md) cuando el usuario solicite cuadernos de clase, procedimientos manuscritos, experiencias escolares o demostraciones físicas de Ingeniería Industrial. **En v0.8 esta piel es el predeterminado para recursos nuevos**, salvo que el usuario o el proyecto anfitrión indique otro diseño. No imponer cambios de estilos globales. La skill debe generar el recurso visual y permitir que la aplicación anfitriona lo distribuya libremente.
 
 Prioridades de calidad: (1) resultados verificados fuera del DOM, (2) coreografía dependiente del cálculo, (3) marcas visuales funcionales, (4) pausas/retrocesos deterministas, (5) ejercicios para que el estudiante razone, (6) accesibilidad y aspecto adaptable. El dibujo jamás debe hacer creer que un límite matemático inferior prueba optimalidad si solo se utilizó una heurística.
 

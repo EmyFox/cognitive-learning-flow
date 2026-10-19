@@ -43,6 +43,52 @@ button,select,input{background:#1c2d44;border:1px solid #3c536e;color:var(--clf-
     renderers.set(kind,render);
     return ()=>{if(renderers.get(kind)===render)renderers.delete(kind);};
   }
+  const THEMES=Object.freeze(['school-notebook','neutral']);
+  const SCHOOL_STYLE=`/* CLF school-notebook: theme de recursos Shadow DOM. No altera estilos del anfitrión. */
+:host{
+ --clf-ink:#254563;--clf-surface:#fffdf6;--clf-line:#cfdbdf;
+ --clf-accent:#275b8d;--clf-muted:#657a90;--clf-paper:#fffefa;
+ color:var(--clf-ink);font:15px/1.55 system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+.frame{position:relative;overflow:hidden;padding:17px 16px 18px 53px;
+ border:1px solid #d7d2c2;border-radius:6px 15px 15px 6px;
+ background-color:var(--clf-surface);
+ background-image:linear-gradient(90deg,#91b4d517 1px,transparent 1px),linear-gradient(#91b4d519 1px,transparent 1px);
+ background-size:24px 24px;box-shadow:2px 4px 0 #cfcac0,5px 8px 16px #26344a1a;
+}
+.frame::before{content:'';position:absolute;pointer-events:none;left:39px;top:0;bottom:0;width:2px;background:#d57f86ab}
+.frame::after{content:'';position:absolute;pointer-events:none;left:0;top:0;bottom:0;width:31px;
+ background:radial-gradient(circle at 16px 37px,#ede8de 0 6px,#b9b4ac 6.5px 7.5px,transparent 8px) 0 0 / 31px 79px repeat-y}
+.head{font-size:11px;letter-spacing:.13em;color:#4e7394;font-weight:850;text-transform:uppercase;
+ border-bottom:1px solid #b9d0df;margin:0 0 13px;padding:0 0 9px}
+h3{font:800 20px/1.3 Georgia,'Times New Roman',serif;color:#234f7f}
+.paper{background-color:#fffef6;background-image:repeating-linear-gradient(transparent 0 30px,#a9c6df61 31px,transparent 32px);
+ box-shadow:inset 0 1px 8px #244c7c13;border:1px solid #d9e0e5;
+ color:#275a8d;font:600 16px/32px 'Segoe Print','Comic Sans MS',cursive}
+.line{color:#265c91}
+.display{border:3px solid #829e9d;border-radius:8px;background:#26434c;color:#f0f8d7;
+ box-shadow:inset 0 2px 3px #17242b38}
+button{background:#fffefa;border-color:#c1d1dc;color:#254d78;font-weight:650;
+ box-shadow:0 2px 0 #c6d2d9;transition:transform .15s,background .15s,box-shadow .15s}
+button:hover{background:#e6f1f8;transform:translateY(-1px)}
+button:active{transform:translateY(1px);box-shadow:0 0 0 #0000}
+button.primary,.primary{background:#2c608f;border-color:#2c608f;color:#fff}
+button.primary:hover{background:#3578ad}
+button.active{background:#ffe8a0;outline:2px solid #dbaf4c;outline-offset:-2px}
+.keypad button{min-height:44px;background:#fcfdfa}
+.graph{border:1px dashed #bacfdc;border-radius:10px;background:linear-gradient(#f8fcfbe9,#f8fcfbe9),
+ repeating-linear-gradient(0deg,transparent 0 23px,#b1cbd651 24px),
+ repeating-linear-gradient(90deg,transparent 0 23px,#b1cbd651 24px)}
+.quiz fieldset{border-color:#c7d5dd;background:#fffdf8}
+.choice{padding:8px 7px;border-radius:7px}
+.choice:has(input:checked){background:#fff2b8}
+.feedback.okay,.okay{color:#276b4b}
+input,select{background:#fffefa;border-color:#b7cbd9;color:#244566}
+progress{accent-color:#408c7f}
+.notice,.tag{color:#607c91}
+@media(max-width:520px){.frame{padding:13px 11px 15px 37px}.frame::before{left:28px}.frame::after{width:23px;background-size:23px 79px;background-position:-3px 0}.paper{padding:12px;font-size:14px}}
+@media(prefers-reduced-motion:reduce){button,.frame,.graph{transition:none!important;animation:none!important}}
+`;
   const svgNS='http://www.w3.org/2000/svg';
   const E=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e;};
   const S=(tag,attrs)=>{const e=document.createElementNS(svgNS,tag);for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,String(v));return e;};
@@ -52,6 +98,8 @@ button,select,input{background:#1c2d44;border:1px solid #3c536e;color:var(--clf-
     if((lesson.simulations||[]).length&&!sim)throw new Error('Carga CLFSim antes de CLFKit para esta lección');
     if(!core)throw new Error('Carga CLFCore antes de CLFKit');
     if(!lesson || !Array.isArray(lesson.scenes)||!lesson.scenes.length)throw new Error('Lección sin escenas');
+    if (options.theme!==undefined && !THEMES.includes(options.theme)) throw new RangeError('Tema desconocido: '+options.theme);
+    let theme=options.theme||'school-notebook';
     const compiled=core.compile(lesson), mounts=new Map(), listeners=new Set(), cueListeners=new Set();
     let previousCue=null;
     const available=new Set(TYPES);let timer=null,destroyed=false;
@@ -98,7 +146,7 @@ button,select,input{background:#1c2d44;border:1px solid #3c536e;color:var(--clf-
       scenarioOverrides[view.id]=next;emit();return true;
     }
     function resetScenario(){assertLive();if(mode==='assessment')return;const current=scenarioView();if(current)delete scenarioOverrides[current.id];emit();}
-    function state(){return Object.freeze({simulation:mode==='assessment'?null:scenarioView(),cue:mode==='demo'?core.choreography(lesson,compiled,cursor):mode==='guided'&&guideSolved?core.choreography(lesson,compiled,sceneEnd(guideIndex)):null,mode,cursor,playing,speed,sceneIndex:mode==='demo'?index():guideIndex,totalScenes:lesson.scenes.length,guideSolved,guideHint,guideHintLevel,attempts,submitted,examAnswers:{...examAnswers},snapshot:view()});}
+    function state(){return Object.freeze({theme,simulation:mode==='assessment'?null:scenarioView(),cue:mode==='demo'?core.choreography(lesson,compiled,cursor):mode==='guided'&&guideSolved?core.choreography(lesson,compiled,sceneEnd(guideIndex)):null,mode,cursor,playing,speed,sceneIndex:mode==='demo'?index():guideIndex,totalScenes:lesson.scenes.length,guideSolved,guideHint,guideHintLevel,attempts,submitted,examAnswers:{...examAnswers},snapshot:view()});}
     function emit(){if(destroyed)return;
       const current=state();
       for(const fn of listeners){try{fn(current);}catch(error){console.error('CLFKit listener:',error);}}
@@ -153,7 +201,20 @@ button,select,input{background:#1c2d44;border:1px solid #3c536e;color:var(--clf-
     function manualKey(key){assertLive();if(mode!=='guided'||guideSolved)return;if(key==='C')manual='';else if(key==='⌫')manual=manual.slice(0,-1);else if(key==='='){try{manual=core.format(core.calculate(manual));}catch{manual='Error';}}else if(manual.length<64&&KEYS.includes(key))manual+=key;emit();}
     function selectAnswer(id,option){assertLive();if(mode!=='assessment'||submitted)return;const item=lesson.assessment.items.find(q=>q.id===id);if(!item||!item.options.some(o=>o.id===option))return;examAnswers[id]=option;emit();}
     function submit(){assertLive();if(mode!=='assessment'||submitted)return null;submitted=true;let correct=0;for(const item of lesson.assessment.items)if(examAnswers[item.id]===item.correctOptionId)correct++;emit();return {correct,total:lesson.assessment.items.length};}
-    function mount(type,host){assertLive();if(!available.has(type))throw new Error('Recurso CLF desconocido: '+type);if(typeof host==='string')host=document.querySelector(host);if(!host || !host.appendChild)throw new Error('Contenedor destino inexistente');const wrapper=E('div');wrapper.dataset.clfResource=type;const shadow=wrapper.attachShadow({mode:'open'});const style=E('style',STYLE);const body=E('section');shadow.append(style,body);host.append(wrapper);const item={type,host,wrapper,shadow,body};mounts.set(wrapper,item);render(item);return ()=>unmount(wrapper);}
+    function setTheme(next){
+      assertLive();
+      if(!THEMES.includes(next))throw new RangeError('Tema desconocido: '+next);
+      if(theme===next)return;
+      theme=next;
+      // Only replace the isolated stylesheet: do not recreate the controls, reset
+      // the timeline or steal focus from the host application.
+      for(const item of mounts.values()){
+        item.wrapper.dataset.clfTheme=next;
+        item.style.textContent=STYLE+(theme==='school-notebook'?SCHOOL_STYLE:'');
+      }
+      for(const fn of listeners){try{fn(state());}catch(error){console.error('CLFKit listener:',error);}}
+    }
+    function mount(type,host){assertLive();if(!available.has(type))throw new Error('Recurso CLF desconocido: '+type);if(typeof host==='string')host=document.querySelector(host);if(!host || !host.appendChild)throw new Error('Contenedor destino inexistente');const wrapper=E('div');wrapper.dataset.clfResource=type;wrapper.dataset.clfTheme=theme;const shadow=wrapper.attachShadow({mode:'open'});const style=E('style',STYLE+(theme==='school-notebook'?SCHOOL_STYLE:''));const body=E('section');shadow.append(style,body);host.append(wrapper);const item={type,host,wrapper,shadow,body,style};mounts.set(wrapper,item);render(item);return ()=>unmount(wrapper);}
     function unmount(wrapper){const item=mounts.get(wrapper);if(item){item.wrapper.remove();mounts.delete(wrapper);}}
     function destroy(){if(destroyed)return;stopTimer();for(const detach of [...workflowListeners])detach();for(const item of [...mounts.values()])unmount(item.wrapper);listeners.clear();cueListeners.clear();destroyed=true;}
     function buildGraph(highlights,allowed){
@@ -431,8 +492,8 @@ button,select,input{background:#1c2d44;border:1px solid #3c536e;color:var(--clf-
       if(type==='status'){title('Estado');f.append(E('p',`Modalidad: ${mode} · Etapa ${mode==='demo'?index()+1:guideIndex+1}/${lesson.scenes.length} · ${playing?'Reproduciendo':'Pausado'}`));}
       body.append(f);
     }
-    return Object.freeze({mount,onChange,onCue,seekAction,selectScenario,setScenarioParameter,resetScenario,getScenario:scenarioView,getState:state,play,pause,seek,seekScene,seekSceneId,connectWorkflow,next,previous,setMode,setSpeed,restart,answer,hint,reveal,manualKey,selectAnswer,submit,destroy,resources:Object.freeze([...TYPES])});
+    return Object.freeze({mount,setTheme,onChange,onCue,seekAction,selectScenario,setScenarioParameter,resetScenario,getScenario:scenarioView,getState:state,play,pause,seek,seekScene,seekSceneId,connectWorkflow,next,previous,setMode,setSpeed,restart,answer,hint,reveal,manualKey,selectAnswer,submit,destroy,resources:Object.freeze([...TYPES])});
   }
   if(root.CLFKit)throw new Error('CLFKit ya está definido: evita cargarlo dos veces');
-  root.CLFKit=Object.freeze({create,registerVisualization,resources:Object.freeze([...TYPES]),version:'0.6.0'});
+  root.CLFKit=Object.freeze({create,registerVisualization,resources:Object.freeze([...TYPES]),version:'0.8.0',themes:THEMES,defaultTheme:'school-notebook'});
 })(globalThis);

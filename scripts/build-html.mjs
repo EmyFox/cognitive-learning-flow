@@ -5,9 +5,10 @@ import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {validateLesson} from './validate-lesson.mjs';
 const here=dirname(fileURLToPath(import.meta.url)),root=resolve(here,'..');
-export function buildHtml(lesson) {
+export function buildHtml(lesson,{theme='school-notebook'}={}) {
+  if(!['school-notebook','neutral'].includes(theme))throw new RangeError('Tema desconocido: '+theme);
   validateLesson(lesson);
-  const css=readFileSync(resolve(root,'runtime/styles.css'),'utf8');
+  const css=readFileSync(resolve(root,'runtime/styles.css'),'utf8')+(theme==='school-notebook'?'\n'+readFileSync(resolve(root,'runtime/school-standalone.css'),'utf8'):'');
   const core=readFileSync(resolve(root,'runtime/core.js'),'utf8');
   const player=readFileSync(resolve(root,'runtime/player.js'),'utf8');
   const data=JSON.stringify(lesson).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
@@ -16,7 +17,7 @@ export function buildHtml(lesson) {
     +'<meta name="viewport" content="width=device-width,initial-scale=1">'
     +'<meta name="description" content="Laboratorio educativo interactivo e independiente">'
     +'<title>Cognitive Learning Flow · Laboratorio interactivo</title><style>'+css+'</style></head><body>'
-    +'<main class="shell"><header class="top"><div><div class="eyebrow">Cognitive Learning Flow · v0.2</div>'
+    +'<main class="shell"><header class="top"><div><div class="eyebrow">Cognitive Learning Flow · v0.8</div>'
     +'<h1 id="title">Laboratorio interactivo</h1><small>Razonamiento visible · Cálculo verificable · Sin conexión</small></div>'
     +'<nav class="modebar" aria-label="Modalidad"><button type="button" id="tab-demo" aria-pressed="true">Demostración</button>'
     +'<button type="button" id="tab-guided" aria-pressed="false">Práctica guiada</button><button type="button" id="tab-exam" aria-pressed="false">Evaluación</button></nav></header>'
@@ -52,11 +53,19 @@ export function buildHtml(lesson) {
 }
 if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   try{
-    const input=process.argv[2]||'examples/pert-cpm.lesson.json';
-    const output=process.argv[3]||'dist/pert-cpm.html';
+    const positional=[];
+    let theme='school-notebook';
+    for(let i=2;i<process.argv.length;i++){
+      if(process.argv[i]==='--theme'){
+        if(i+1>=process.argv.length)throw new Error('Falta el valor de --theme');
+        theme=process.argv[++i];
+      } else positional.push(process.argv[i]);
+    }
+    const input=positional[0]||'examples/pert-cpm.lesson.json';
+    const output=positional[1]||'dist/pert-cpm.html';
     const lesson=JSON.parse(readFileSync(resolve(input),'utf8'));
     mkdirSync(dirname(resolve(output)),{recursive:true});
-    writeFileSync(resolve(output),buildHtml(lesson),'utf8');
+    writeFileSync(resolve(output),buildHtml(lesson,{theme}),'utf8');
     console.log('HTML offline generado:',resolve(output));
   }catch(error){console.error('ERROR al exportar:',error.message);process.exitCode=1;}
 }

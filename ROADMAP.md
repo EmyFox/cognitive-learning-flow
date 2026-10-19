@@ -113,3 +113,13 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [x] Pruebas de regresión + validación matemática + Chromium escritorio/móvil.
 - [ ] Diseño de actividades prácticas con expertos en didáctica y accesibilidad WCAG exhaustiva.
 - [ ] Selector temático de estilos visuales (libreta, laboratorio, pizarrón) sin duplicar cálculos.
+
+
+## v0.8 · Identidad visual por defecto (completada)
+
+- [x] `school-notebook` por defecto para los recursos Shadow DOM de CLFKit.
+- [x] Alternativa `neutral` y cambio de tema sin reiniciar el timeline.
+- [x] Exportador HTML estándar con libreta por defecto y opción `--theme neutral`.
+- [x] Guía de diseño y tokens reutilizables por otros agentes.
+- [ ] Tema de pizarrón y variantes de accesibilidad ampliadas.
+- [ ] Auditoría de contraste automatizada y validación visual de todos los escenarios.
