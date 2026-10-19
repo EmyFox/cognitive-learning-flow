@@ -2,7 +2,7 @@
 
 Skill independiente y reutilizable para agentes de IA que convierten procedimientos de solución en laboratorios HTML interactivos. **No pertenece a Checkfox ni requiere un frontend, backend o nube específicos.**
 
-> **Estado:** v0.2 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
+> **Estado:** v0.3 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
 
 ## ¿Para qué sirve?
 
@@ -129,3 +129,21 @@ Puedes personalizar apariencia con las variables CSS `--accent`, `--bg`, `--pane
 ### Verificación v0.2
 
 Se ejecutó `npm test` (18 pruebas), `npm run build:example`, y pruebas de flujo reales en Chromium en tamaños escritorio, 390 px y 375 px: pausa sin escritura adicional, salto de escena, respuestas guiadas, evaluación sin revelado previo ni errores JavaScript, y sin overflow horizontal. El CI ejecuta pruebas unitarias; el test de Chromium fue local y aún no se automatizó en GitHub Actions.
+
+## v0.3 · Kit de recursos para HTML y flujos existentes
+
+CLF **ya no impone una página completa**. Genera recursos seleccionables que puedes colocar libremente en HTML o conectar a flujos existentes.
+
+```bash
+npm run build:resources   # JS + lección + manifest + ejemplo
+npm run build:integrated  # insertar solo donde marques data-clf
+npm run build:example     # página autónoma anterior
+```
+
+API: `CLFKit.create(lesson)` con `mount(tipo,host)`, `seekSceneId(id)`, `connectWorkflow({...})`, `onChange(fn)`, `play()`, `pause()`, `destroy()` y modos de demostración, práctica y evaluación.
+
+Los nueve recursos son `notebook`, `calculator`, `diagram`, `controls`, `steps`, `transcript`, `guided`, `assessment` y `status`.
+
+Cada recurso utiliza **Shadow DOM** para encapsular CSS; no modifica estilos, rutas ni navegación del anfitrión. La CLI no modifica el HTML original ni un destino existente sin `--force`. Para múltiples lecciones, usa instancias API distintas.
+
+Consulta [Integración y flujos](references/EMBEDDING.md) y [HTML anfitrión](examples/existing-page.html). Límites: sin auditoría WCAG formal, renderizadores específicos de otros dominios ni estudios pedagógicos.
