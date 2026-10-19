@@ -3,13 +3,23 @@ name: cognitive-learning-flow
 description: Diseña experiencias HTML interactivas que enseñan procedimientos cuantitativos mediante razonamiento observable, cálculos verificables, escritura progresiva, diagramas y práctica guiada. Úsala al crear laboratorios didácticos de ingeniería, matemáticas, estadística, ciencias y preparación de exámenes.
 compatibility: Agentes compatibles con Agent Skills; HTML5, CSS y JavaScript. No requiere Checkfox ni servicios externos.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   opencode/slash: "true"
 ---
 
 # Cognitive Learning Flow (CLF)
 
 Tu trabajo es convertir un procedimiento académico en una **experiencia de aprendizaje reproducible, verificable e interactiva**. La experiencia ha de mostrar una *estrategia explícita de resolución*, no simular acceso a los pensamientos privados de quien aprende.
+
+## Integración no invasiva y generación de recursos (v0.3)
+
+- Prioriza **recursos desacoplados** sobre crear una página entera. No impongas layout, navegación o branding.
+- Si llega un HTML o flujo existente, inspecciónalo primero; conserva la estructura, CSS, JavaScript, rutas y accesibilidad.
+- Genera únicamente las piezas necesarias y deja la colocación en manos del desarrollador.
+- Usa `CLFKit.create(lesson).mount(tipo, selector)` con Shadow DOM y `connectWorkflow()` para flujos preexistentes.
+- Exporta assets con `scripts/build-resources.mjs` o integra HTML sin reorganizar con `scripts/integrate-html.mjs`.
+- Conserva el reproductor standalone como opción, no requisito.
+- Lee `references/EMBEDDING.md` antes de integrar.
 
 ## Resultado esperado
 
@@ -105,6 +115,15 @@ node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html
 ```
 
 El motor base está en `runtime/core.js` (timeline/aritmética/instantáneas), `runtime/player.js` (modos y componentes DOM) y `runtime/styles.css` (tokens ajustables). El CLI inserta todo inline para uso sin Internet. Los diagramas SVG actuales cubren redes de actividades PERT; para EOQ, SPC y otros temas crea vistas de dominio en vez de fingir un diagrama PERT. La generación requiere datos matemáticos verificados; el renderer no reemplaza el solver.
+
+## Exportar recursos por separado
+
+```sh
+npm run build:resources
+npm run build:integrated
+```
+
+El runtime de recursos `runtime/kit.js` reutiliza `runtime/core.js`. Permite `mount`, `seekSceneId`, `connectWorkflow`, `onChange`, `setMode` y `destroy`. Ningún recurso decide la posición de los demás.
 
 ## Comandos para comprobar un caso
 

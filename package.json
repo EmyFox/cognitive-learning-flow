@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Standalone reusable skill for visual problem-solving learning experiences",
+  "description": "Portable cognitive learning resource generator, embeddable in existing HTML and workflows",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -11,6 +11,8 @@
     "test": "node --test tests/*.test.mjs",
     "validate:example": "node scripts/validate-lesson.mjs examples/pert-cpm.lesson.json",
     "build:example": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html",
-    "build:html": "node scripts/build-html.mjs"
+    "build:html": "node scripts/build-html.mjs",
+    "build:resources": "node scripts/build-resources.mjs examples/pert-cpm.lesson.json dist/kit",
+    "build:integrated": "node scripts/integrate-html.mjs examples/existing-page.html examples/pert-cpm.lesson.json dist/existing-integrated.html --force"
   }
 }

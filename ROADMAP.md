@@ -56,3 +56,15 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - La práctica guiada solicita respuestas antes de mostrarlas.
 - Un HTML de cliente no reemplaza un sistema de evaluación seguro.
 - Ningún framework, marca ni negocio es una dependencia obligatoria.
+
+## v0.3 · Recursos embebibles (implementación inicial)
+
+- [x] Montaje independiente de nueve recursos en contenedores elegidos.
+- [x] Shadow DOM, sin hojas CSS globales ni layout impuesto.
+- [x] Exportador y manifiesto de recursos con ejemplo.
+- [x] CLI opt-in para HTML existente con `data-clf`, sin reorganización.
+- [x] Sincronización reversible por eventos de flujos externos.
+- [x] Pruebas de seguridad, aislamiento de modalidades y comportamiento móvil.
+- [ ] Adaptadores React/Vue y SSR.
+- [ ] Renderizadores EOQ, SPC, pronósticos y programación lineal.
+- [ ] Optimizar render, automatizar navegador en CI y auditar accesibilidad.
