@@ -1,6 +1,6 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Portable cognitive learning resource generator, embeddable in existing HTML and workflows",
   "type": "module",
@@ -13,6 +13,9 @@
     "build:example": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html",
     "build:html": "node scripts/build-html.mjs",
     "build:resources": "node scripts/build-resources.mjs examples/pert-cpm.lesson.json dist/kit",
-    "build:integrated": "node scripts/integrate-html.mjs examples/existing-page.html examples/pert-cpm.lesson.json dist/existing-integrated.html --force"
+    "build:integrated": "node scripts/integrate-html.mjs examples/existing-page.html examples/pert-cpm.lesson.json dist/existing-integrated.html --force",
+    "validate:forecast": "node scripts/validate-lesson.mjs examples/forecast-moving-average.lesson.json",
+    "build:forecast:resources": "node scripts/build-resources.mjs examples/forecast-moving-average.lesson.json dist/forecast-kit",
+    "build:forecast:integrated": "node scripts/integrate-html.mjs examples/forecast-host.html examples/forecast-moving-average.lesson.json dist/forecast-integrated.html --force"
   }
 }

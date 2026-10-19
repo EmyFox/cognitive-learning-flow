@@ -68,3 +68,17 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Adaptadores específicos para React/Vue/Web Components con SSR.
 - [ ] Mejorar ergonomía del calendario de eventos y motor SVG específico para EOQ/SPC.
 - [ ] Auditoría WCAG y pruebas con estudiantes; minimizar reconstrucción DOM por glifo.
+
+## v0.5 · Gramática visual genérica (implementada)
+
+- [x] Añadir componente `visualization` montable de forma aislada en HTML existente.
+- [x] Tres diagramas declarativos: barras, línea temporal y flujo de proceso.
+- [x] Revelado progresivo sincronizado con el mismo timeline del cuaderno.
+- [x] Foco de datos verificable; impedir referencias a datos todavía ocultos.
+- [x] Renderizadores personalizados registrables sin modificar `kit.js`.
+- [x] Segundo caso independiente: promedio móvil de demanda, con validación matemática.
+- [x] Pruebas de snapshot, regresión, estados, exportación y responsive.
+- [ ] Medición de rendimiento con lecciones grandes y virtualización de puntos.
+- [ ] Graficación avanzada de sensibilidad, simulación estocástica, Monte Carlo.
+- [ ] Diseño instruccional contrastado con estudiantes y auditoría WCAG formal.
+- [ ] Renderizadores 3D/tiempo real como plugins opcionales, siempre con versión textual.
