@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
-  "description": "Modular cognitive learning engine with paper-notebook animations and verified line balancing",
+  "description": "Portable interactive learning resources with school-notebook default theme and synchronized reasoning",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -21,6 +21,7 @@
     "build:operations": "node scripts/integrate-html.mjs examples/operations-host.html examples/operations-lab.lesson.json dist/operations-integrated.html --force",
     "build:operations:resources": "node scripts/build-resources.mjs examples/operations-lab.lesson.json dist/operations-kit",
     "validate:school": "node scripts/validate-school.mjs examples/line-balancing.school.json",
-    "build:school": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html"
+    "build:school": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html",
+    "build:neutral": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm-neutral.html --theme neutral"
   }
 }

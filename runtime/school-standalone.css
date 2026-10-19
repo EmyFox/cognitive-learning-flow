@@ -1,0 +1,33 @@
+/* Theme school-notebook for the optional full-page legacy player.
+   Appended after runtime/styles.css, not used in embeds. */
+:root{color-scheme:light;--bg:#e9e6de;--panel:#fffef8;--panel2:#f2f4ef;
+ --text:#27445e;--muted:#607990;--border:#c5d5dd;--accent:#2b6998;--teal:#368b7b;--warn:#a25547;
+ font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+body{background:radial-gradient(ellipse at 8% 0%,#d9e9ef 0,transparent 40%),#e9e6de;color:var(--text)}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:#234f7f}
+.eyebrow{color:#6b8b8a}
+.summary,.panel{position:relative;isolation:isolate;background-color:#fffef8;background-image:
+ linear-gradient(90deg,#91b4d512 1px,transparent 1px),linear-gradient(#91b4d513 1px,transparent 1px);
+ background-size:24px 24px;border:1px solid #d6d0c2;border-radius:8px 15px 15px 8px;
+ box-shadow:2px 4px 0 #cfc8bc,6px 9px 17px #24395316}
+.summary{border-left:3px solid #d88d91}
+.modebar{background:#dfe8e9;border-color:#c6d6df}
+.modebar button[aria-pressed=true]{background:#fffef6;border-color:#a6bfce;color:#245f8b;box-shadow:0 2px 5px #2439531a}
+button{background:#fffdf8;border-color:#bfceda;color:#294d70;box-shadow:0 2px 0 #c5ced1}
+button:hover{background:#e8f2f8}button.primary{background:#2a5f90;border-color:#2a5f90;color:#fff}
+button.primary:hover{background:#3579ac}
+input,select{background:#fffdf9;border-color:#b8c8d2;color:#284966}
+.stage{color:#a96252}.tag{background:#fcfaef;color:#647e90}
+.notebook{font:600 16px/30px 'Segoe Print','Comic Sans MS',cursive;color:#285a8d;
+ border:1px solid #cbd9df;box-shadow:inset 0 1px 7px #1c396a12;
+ background:linear-gradient(90deg,transparent 31px,#e5a4a8 32px,transparent 34px),
+ repeating-linear-gradient(#fffdf5 0px,#fffdf5 29px,#bed3e4 30px)}
+.network-wrap{background-color:#fafdf9;background-image:radial-gradient(#b2c5cf 1px,transparent 1px)}
+.calculator{background:#e9ece8;border-color:#c3d0d3;box-shadow:3px 4px 0 #c5cbca}
+.calc-display{background:#27484e;border:3px solid #7b9896;color:#f3f8d3}
+.keys button{background:#fcfdf9;color:#2d4c65;border:1px solid #c5d1d9}
+.keys button.active{background:#f5d975;color:#4a4835}
+.keys button.operator{background:#e1ebf6}
+.quiz-item{background:#fffdf8}.option{color:var(--text)}
+.hintbox{background:#fff0b8;border-color:#d5ac48}.feedback{color:#226d53}.feedback.error{color:#9a423c}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}

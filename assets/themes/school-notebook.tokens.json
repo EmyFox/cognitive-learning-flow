@@ -1,0 +1,46 @@
+{
+  "name": "school-notebook",
+  "version": "0.8.0",
+  "usage": "Default for new educational CLF resources; no global CSS on existing host applications",
+  "colors": {
+    "paper": "#fffef8",
+    "canvas": "#e9e6de",
+    "ink": "#275a8d",
+    "heading": "#234f7f",
+    "margin": "#d57f86",
+    "grid": "#a9c6df",
+    "highlight": "#fff0b7",
+    "positive": "#276b4b",
+    "warning": "#9a423c",
+    "border": "#d6d0c2"
+  },
+  "typography": {
+    "headings": "Georgia, Times New Roman, serif",
+    "handwriting": "Segoe Print, Comic Sans MS, cursive",
+    "interface": "system-ui, -apple-system, Segoe UI, sans-serif",
+    "calculations": "ui-monospace, Consolas, monospace"
+  },
+  "surface": {
+    "gridPx": 24,
+    "notebookMarginPx": 39,
+    "ringHoleGapPx": 79,
+    "corners": "6px 15px 15px 6px",
+    "shadow": "2px 4px 0 #cfc8bc, 5px 8px 16px #26344a1a"
+  },
+  "motion": {
+    "recommendedMs": {
+      "focus": 180,
+      "highlight": 250,
+      "transition": 320
+    },
+    "requireReducedMotion": true,
+    "requireDeterministicSeek": true,
+    "neverAnimateIncorrectResult": true
+  },
+  "accessibility": {
+    "minTapTargetPx": 44,
+    "keyboardFocus": true,
+    "provideStaticTranscript": true,
+    "avoidColorOnlyMeaning": true
+  }
+}

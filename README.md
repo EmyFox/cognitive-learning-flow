@@ -2,7 +2,20 @@
 
 Skill independiente y reutilizable para agentes de IA que convierten procedimientos de solución en laboratorios HTML interactivos. **No pertenece a Checkfox ni requiere un frontend, backend o nube específicos.**
 
-> **Estado:** v0.3 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
+> **Estado:** v0.8 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
+
+## v0.8 · Libreta escolar como tema predeterminado
+
+Los nuevos recursos CLF adoptan **papel cuadriculado crema, margen rojo, perforaciones, notas manuscritas, resaltadores cálidos y calculadora física**, con animaciones vinculadas a operaciones reales. La presentación es configurable e independiente del contenido académico.
+
+- `CLFKit.create(lesson)` aplica `school-notebook` dentro de Shadow DOM; **no modifica los estilos de la página anfitriona**.
+- `CLFKit.create(lesson,{theme:'neutral'})` conserva el estilo neutro anterior.
+- `controller.setTheme('neutral')` o `controller.setTheme('school-notebook')` cambia el tema de los componentes montados **sin reiniciar el timeline**.
+- `node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html` usa la libreta por defecto.
+- `npm run build:neutral` genera el reproductor clásico sin cambiar el tema preferido.
+- El recurso independiente de balanceo de línea `CLFSchoolNotebook` mantiene su estética original.
+
+El diseño está especificado en [`references/DESIGN_SYSTEM.md`](references/DESIGN_SYSTEM.md), con tokens de referencia en [`assets/themes/school-notebook.tokens.json`](assets/themes/school-notebook.tokens.json). La skill ofrece la libreta como **estilo por defecto para nuevos materiales**, pero respeta la identidad del usuario o proyecto, sin imponer una disposición fija.
 
 ## ¿Para qué sirve?
 
