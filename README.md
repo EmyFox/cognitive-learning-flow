@@ -216,3 +216,19 @@ npm run build:operations:resources
 El anfitrión decide posición, navegación y tema visual. Véase [SIMULATION_ENGINE](references/SIMULATION_ENGINE.md). Una aplicación React/Vue puede montar/desmontar cada recurso mediante `CLFKit.create(lesson).mount(...)` como antes.
 
 **Límite:** las gráficas son representaciones de modelos matemáticos sintéticos, no mediciones de planta reales, y la cola puede variar entre muestras (la semilla es reproducible). Para afirmar validez operativa real se requieren datos y validación externa.
+
+## v0.7 · Libreta escolar animada (opcional y embebible)
+
+La v0.7 incluye **un nuevo recurso con estética de cuaderno de clase**, sin imponer esa apariencia a los otros recursos del proyecto. El componente tiene su propia hoja cuadriculada, encuadernación, tinta azul, notas adhesivas, red de precedencias, estaciones y calculadora sincronizada.
+
+```bash
+npm run validate:school
+npm run build:school
+# Abre dist/school-line-balancing.html sin Internet.
+```
+
+**Tres modos:** la clase se escribe y calcula paso a paso; práctica con validación numérica y pistas; laboratorio para cambiar el pedido de 400/480/600 piezas y reconstruir automáticamente las estaciones. El contenido numérico proviene del motor `CLFLineBalancing.solve()`, no de animaciones codificadas con respuestas fijas. El método de asignación es una **heurística de primer elegible** que respeta precedencias, pero no garantiza óptimo global.
+
+**Inserción sin layout impuesto:** `CLFSchoolNotebook.mount(host, lesson)` monta la libreta en un único nodo del HTML anfitrión, usando Shadow DOM. No reescribe CSS ajeno ni obliga a elegir modo pantalla completa. El proyecto mantiene su navegación y decide la posición; la piel escolar es optativa.
+
+Consulta [la guía de cuaderno](references/SCHOOL_NOTEBOOK.md) y el [HTML anfitrión de ejemplo](examples/school-notebook-host.html). La versión mantiene todos los scripts, validadores y ejemplos de v0.6.

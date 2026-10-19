@@ -19,3 +19,5 @@ jobs:
       - run: npm run validate:operations
       - run: npm run build:operations
       - run: npm run build:operations:resources
+      - run: npm run validate:school
+      - run: npm run build:school
