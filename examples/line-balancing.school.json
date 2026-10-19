@@ -1,0 +1,72 @@
+{
+  "id": "line-balancing-school",
+  "title": "Balanceo de línea: cuaderno de Ingeniería Industrial",
+  "subtitle": "Una línea de ensamble con siete tareas, demanda diaria y asignación a estaciones.",
+  "availableSeconds": 28800,
+  "demand": 480,
+  "shiftLabel": "8 horas productivas",
+  "tasks": [
+    {
+      "id": "A",
+      "title": "Preparar base",
+      "seconds": 30,
+      "predecessors": []
+    },
+    {
+      "id": "B",
+      "title": "Fijar soporte",
+      "seconds": 25,
+      "predecessors": [
+        "A"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "Instalar motor",
+      "seconds": 35,
+      "predecessors": [
+        "A"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Colocar cubierta",
+      "seconds": 20,
+      "predecessors": [
+        "B"
+      ]
+    },
+    {
+      "id": "E",
+      "title": "Conectar cableado",
+      "seconds": 40,
+      "predecessors": [
+        "C"
+      ]
+    },
+    {
+      "id": "F",
+      "title": "Prueba eléctrica",
+      "seconds": 25,
+      "predecessors": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "id": "G",
+      "title": "Empacar",
+      "seconds": 15,
+      "predecessors": [
+        "F"
+      ]
+    }
+  ],
+  "reference": {
+    "cycle": 60,
+    "total": 190,
+    "theoreticalMin": 4,
+    "efficiency": 0.7916666666666666,
+    "idleSeconds": 50
+  }
+}

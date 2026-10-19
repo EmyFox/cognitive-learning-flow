@@ -102,3 +102,14 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Simuladores EOQ con descuentos, colas M/M/c o programación de trabajos reales como extensiones **opt-in**.
 - [ ] Analítica de errores consentida y medición de transferencia en estudiantes.
 - [ ] Crear políticas por entorno para CSP estricta, SSR y sitios sin JS inline.
+
+## v0.7 · Cuaderno animado de Ingeniería Industrial
+
+- [x] Recurso de libreta con papel cuadriculado, margen, hojas, tinta y resaltados vinculados a las etapas.
+- [x] Heurística determinista de balanceo de línea con validación de precedencias y límite inferior teórico.
+- [x] Cuaderno, calculadora, red y estaciones sincronizados por eventos reconstruibles.
+- [x] Modo práctica y laboratorio de sensibilidad por demanda, con derivación automática.
+- [x] Embebido no invasivo en Shadow DOM y exportación HTML offline.
+- [x] Pruebas de regresión + validación matemática + Chromium escritorio/móvil.
+- [ ] Diseño de actividades prácticas con expertos en didáctica y accesibilidad WCAG exhaustiva.
+- [ ] Selector temático de estilos visuales (libreta, laboratorio, pizarrón) sin duplicar cálculos.

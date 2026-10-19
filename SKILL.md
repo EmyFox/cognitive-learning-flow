@@ -191,3 +191,18 @@ npm run build:operations:resources
 ```
 
 **No considerar la experiencia «completa» sin** pruebas numéricas para sus parámetros, regresión con las lecciones previas y al menos una revisión visual móvil + escritorio.
+
+## v0.7 · Crear recursos visuales con estética de libreta escolar
+
+Usa [references/SCHOOL_NOTEBOOK.md](references/SCHOOL_NOTEBOOK.md) cuando el usuario solicite cuadernos de clase, procedimientos manuscritos, experiencias escolares o demostraciones físicas de Ingeniería Industrial. **No imponer esa piel cuando no se haya pedido.** La skill debe generar el recurso visual y permitir que la aplicación anfitriona lo distribuya libremente.
+
+Prioridades de calidad: (1) resultados verificados fuera del DOM, (2) coreografía dependiente del cálculo, (3) marcas visuales funcionales, (4) pausas/retrocesos deterministas, (5) ejercicios para que el estudiante razone, (6) accesibilidad y aspecto adaptable. El dibujo jamás debe hacer creer que un límite matemático inferior prueba optimalidad si solo se utilizó una heurística.
+
+Comandos:
+
+```sh
+npm run validate:school
+npm run build:school
+```
+
+El caso está en `examples/line-balancing.school.json`. La API reutilizable de montaje está en `runtime/school-notebook.js`; el motor puro en `runtime/line-balancing.js`. Para un HTML preexistente, **buscar un contenedor de destino y montarlo**, no sustituir el documento completo ni añadir estilos globales. Para nuevas materias, implementa un solver de dominio verificado y construye etapas a partir de sus resultados; no reutilices una gráfica de estaciones para representar un concepto que no tenga esas estaciones.
