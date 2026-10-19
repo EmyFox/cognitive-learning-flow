@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "0.1",
+  "id": "operations-simulator-v06",
+  "title": "Laboratorio de decisiones · Inventarios, colas y producción",
+  "domain": "ingenieria-industrial",
+  "objectives": [
+    "Comparar el costo de pedir y almacenar usando EOQ.",
+    "Distinguir indicadores teóricos M/M/1 de resultados de una simulación finita.",
+    "Detectar cuellos de botella en estaciones conectadas.",
+    "Analizar sensibilidad cambiando una variable por vez."
+  ],
+  "problem": {
+    "statement": "Una fábrica evalúa tamaño de lotes, espera de pedidos y capacidad de una línea. Cada modelo incluye supuestos explícitos: EOQ demanda constante y sin faltantes; M/M/1 Poisson/exponencial y un servidor; estaciones de ciclo fijo sin fallas.",
+    "units": "unidades / horas / minutos"
+  },
+  "groundTruth": {
+    "simulations": {
+      "stock": {
+        "eoq": 692.8203230275509,
+        "annualRelevantCost": 5600
+      },
+      "queue": {
+        "utilization": 0.6666666666666666,
+        "expectedQueueWait": 0.3333333333333333
+      },
+      "line": {
+        "bottleneckMinutes": 5,
+        "theoreticalCapacityPerHour": 12,
+        "makespan": 67
+      }
+    }
+  },
+  "simulations": [
+    {
+      "id": "stock",
+      "title": "Inventario · tamaño económico de pedido",
+      "kind": "inventory-eoq",
+      "parameters": {
+        "annualDemand": 12000,
+        "orderCost": 160,
+        "holdingCost": 8,
+        "orderQuantity": 600,
+        "workingDays": 300
+      },
+      "controls": [
+        {
+          "key": "orderQuantity",
+          "label": "Lote Q (unidades)",
+          "min": 200,
+          "max": 1200,
+          "step": 25
+        },
+        {
+          "key": "orderCost",
+          "label": "Costo por pedido ($)",
+          "min": 40,
+          "max": 300,
+          "step": 10
+        }
+      ],
+      "sensitivity": {
+        "parameter": "orderQuantity",
+        "min": 200,
+        "max": 1200
+      }
+    },
+    {
+      "id": "queue",
+      "title": "Cola · pedidos en atención (M/M/1)",
+      "kind": "queue-mm1",
+      "parameters": {
+        "arrivalRate": 4,
+        "serviceRate": 6,
+        "customers": 24,
+        "seed": 17
+      },
+      "controls": [
+        {
+          "key": "arrivalRate",
+          "label": "Llegadas λ (por hora)",
+          "min": 1,
+          "max": 8,
+          "step": 0.25
+        },
+        {
+          "key": "serviceRate",
+          "label": "Servicio μ (por hora)",
+          "min": 2,
+          "max": 12,
+          "step": 0.25
+        }
+      ],
+      "sensitivity": {
+        "parameter": "serviceRate",
+        "min": 2,
+        "max": 12
+      }
+    },
+    {
+      "id": "line",
+      "title": "Línea · estaciones de producción",
+      "kind": "production-line",
+      "parameters": {
+        "arrivalInterval": 3,
+        "stationCycles": [
+          3,
+          5,
+          4
+        ],
+        "units": 12
+      },
+      "controls": [
+        {
+          "key": "arrivalInterval",
+          "label": "Intervalo de alimentación (min)",
+          "min": 2,
+          "max": 9,
+          "step": 0.25
+        }
+      ],
+      "sensitivity": {
+        "parameter": "arrivalInterval",
+        "min": 2,
+        "max": 9
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "id": "01-pedido",
+      "phase": "identify",
+      "goal": "Ubicar el dilema de inventarios",
+      "rationale": "Pedir de más eleva almacenaje; pedir poco genera órdenes frecuentes.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Demanda anual D = 12 000 u; S = $160/pedido; H = $8/u·año."
+        },
+        {
+          "type": "scenario",
+          "scenarioId": "stock",
+          "frames": 24,
+          "why": "Relaciona el tamaño del lote con la trayectoria del inventario y sus costos."
+        }
+      ]
+    },
+    {
+      "id": "02-eoq",
+      "phase": "execute",
+      "goal": "Estimar lote económico",
+      "rationale": "EOQ equilibra costo anual de pedir y costo anual de mantener.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Q* = √(2DS/H), con D = 12000, S = 160, H = 8."
+        },
+        {
+          "type": "calculator",
+          "expression": "(2*12000*160/8)",
+          "expected": 480000,
+          "keys": [
+            "(",
+            "2",
+            "×",
+            "1",
+            "2",
+            "0",
+            "0",
+            "0",
+            "×",
+            "1",
+            "6",
+            "0",
+            "÷",
+            "8",
+            ")",
+            "="
+          ]
+        },
+        {
+          "type": "write",
+          "text": "√480000 ≈ 692.82 unidades."
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuál es el costo relevante anual si Q=600?",
+        "answer": 5600,
+        "tolerance": 0.01,
+        "hint": "Suma DS/Q y HQ/2.",
+        "feedback": "Pedido: $3200 + mantener $2400 = $5600/año.",
+        "hints": [
+          "Calcula primero D×S/Q y luego H×Q/2.",
+          "Para Q=600, suma 3200 y 2400."
+        ],
+        "misconceptions": [
+          {
+            "value": 3200,
+            "feedback": "Solo calculaste costo de pedidos (DS/Q). Falta mantener Q/2 unidades promedio."
+          },
+          {
+            "value": 2400,
+            "feedback": "Solo calculaste mantener inventario (HQ/2). Falta el costo de lanzar pedidos."
+          }
+        ]
+      }
+    },
+    {
+      "id": "03-variacion",
+      "phase": "interpret",
+      "goal": "Explorar sensibilidad al lote Q",
+      "rationale": "Usa la curva de costo anual total para comparar lotes alternativos sin confundir Q con el costo.",
+      "actions": [
+        {
+          "type": "scenario",
+          "scenarioId": "stock",
+          "frames": 22,
+          "why": "La curva de sensibilidad se recalcula cuando mueves Q."
+        },
+        {
+          "type": "write",
+          "text": "Costo relevante(Q) = D·S/Q + H·Q/2."
+        }
+      ]
+    },
+    {
+      "id": "04-cola",
+      "phase": "represent",
+      "goal": "Comprender llegadas y servicio",
+      "rationale": "M/M/1 aproxima una sola estación con llegadas Poisson y atención exponencial.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "λ=4 solicitudes/h y μ=6 solicitudes/h."
+        },
+        {
+          "type": "scenario",
+          "scenarioId": "queue",
+          "frames": 24,
+          "why": "El simulador usa una semilla fija: la misma configuración reproduce la misma muestra."
+        }
+      ]
+    },
+    {
+      "id": "05-espera",
+      "phase": "verify",
+      "goal": "Calcular espera media teórica en cola",
+      "rationale": "Wq = λ/[μ(μ−λ)] solo existe en régimen estable μ>λ.",
+      "actions": [
+        {
+          "type": "calculator",
+          "expression": "4/(6*(6-4))",
+          "expected": 0.3333333333333333,
+          "keys": [
+            "4",
+            "÷",
+            "(",
+            "6",
+            "×",
+            "(",
+            "6",
+            "-",
+            "4",
+            ")",
+            ")",
+            "="
+          ]
+        },
+        {
+          "type": "write",
+          "text": "Wq = 0.333 h = 20 minutos. Muestra ≠ promedio de estado estacionario."
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuánto vale la utilización ρ para λ=4, μ=6?",
+        "answer": 0.6666666666666666,
+        "tolerance": 0.001,
+        "hint": "ρ=λ/μ.",
+        "feedback": "ρ=4/6≈0.667; servicio ocupado dos terceras partes del tiempo, en teoría.",
+        "hints": [
+          "La utilización es una razón de tasas.",
+          "Divide 4 llegadas/h entre 6 servicios/h."
+        ],
+        "misconceptions": [
+          {
+            "value": 1.5,
+            "feedback": "Invertiste la fracción: utiliza llegadas/servicio, no servicio/llegadas."
+          }
+        ]
+      }
+    },
+    {
+      "id": "06-cuello",
+      "phase": "execute",
+      "goal": "Localizar cuello de botella de producción",
+      "rationale": "El tiempo de estación más largo fija la capacidad sostenida máxima bajo operación continua.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Estaciones de 3, 5 y 4 min/unidad."
+        },
+        {
+          "type": "scenario",
+          "scenarioId": "line",
+          "frames": 25,
+          "why": "Cada pieza avanza de estación solo al quedar libre el recurso."
+        },
+        {
+          "type": "calculator",
+          "expression": "60/5",
+          "expected": 12,
+          "keys": [
+            "6",
+            "0",
+            "÷",
+            "5",
+            "="
+          ]
+        },
+        {
+          "type": "write",
+          "text": "Capacidad teórica: 12 unidades/hora."
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuál es la capacidad teórica (u/h) de la línea?",
+        "answer": 12,
+        "tolerance": 0.001,
+        "hint": "La estación lenta tarda 5 min; divide 60 entre 5.",
+        "feedback": "La estación 2 limita a 12 unidades/hora.",
+        "hints": [
+          "Encuentra la estación más lenta.",
+          "La estación 2 tarda 5 minutos por unidad: calcula 60/5."
+        ],
+        "misconceptions": [
+          {
+            "value": 20,
+            "feedback": "20 unidades/h corresponde a la primera estación (3 min), no a la limitante."
+          },
+          {
+            "value": 15,
+            "feedback": "15 unidades/h corresponde a la tercera estación, no al cuello."
+          }
+        ]
+      }
+    },
+    {
+      "id": "07-transferir",
+      "phase": "transfer",
+      "goal": "Tomar una decisión y justificarla",
+      "rationale": "Cambia una sola variable y distingue efectos en costos, espera y capacidad.",
+      "actions": [
+        {
+          "type": "question",
+          "text": "¿Qué sucede si μ se aproxima a λ? ¿Y si el lote aumenta mucho por encima del EOQ?"
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "items": [
+      {
+        "id": "q1",
+        "stem": "Si Q aumenta desde un valor mayor que EOQ, ¿qué costo tiende a dominar?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Mantenimiento de inventario",
+            "feedback": "Correcto: Q/2 aumenta."
+          },
+          {
+            "id": "B",
+            "text": "Costo de lanzar pedidos",
+            "feedback": "DS/Q disminuye al crecer Q."
+          },
+          {
+            "id": "C",
+            "text": "Ambos quedan fijos",
+            "feedback": "Dependen de Q."
+          }
+        ],
+        "correctOptionId": "A",
+        "explanation": "EOQ minimiza el costo relevante anual total bajo demanda constante."
+      },
+      {
+        "id": "q2",
+        "stem": "En M/M/1, ¿qué ocurre si λ≥μ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "El estado estacionario se vuelve inestable",
+            "feedback": "Correcto."
+          },
+          {
+            "id": "B",
+            "text": "La espera teórica vale cero",
+            "feedback": "La cola no se vacía de forma estable."
+          },
+          {
+            "id": "C",
+            "text": "Wq se puede calcular igual como una espera finita",
+            "feedback": "No: no existe media estacionaria finita."
+          }
+        ],
+        "correctOptionId": "A",
+        "explanation": "Con utilización ρ≥1 no hay un régimen estacionario M/M/1 estable."
+      },
+      {
+        "id": "q3",
+        "stem": "Estaciones 3, 5 y 4 min/pieza. ¿Qué operación limita la capacidad?",
+        "options": [
+          {
+            "id": "A",
+            "text": "La primera, 3 min",
+            "feedback": "Es la más rápida."
+          },
+          {
+            "id": "B",
+            "text": "La segunda, 5 min",
+            "feedback": "Correcto."
+          },
+          {
+            "id": "C",
+            "text": "La tercera, 4 min",
+            "feedback": "No es la más lenta."
+          }
+        ],
+        "correctOptionId": "B",
+        "explanation": "La estación lenta determina el ciclo mínimo sustentable: 5 min/pieza."
+      }
+    ]
+  },
+  "sourceNotes": [
+    "Modelos clásicos de Ingeniería Industrial. Escenarios sintéticos didácticos, no examen oficial.",
+    "EOQ: demanda constante, reposición instantánea y sin faltantes; se minimiza solo costo relevante anual.",
+    "M/M/1: llegadas Poisson, servicio exponencial, FCFS, un servidor; comparar teoría vs simulación finita.",
+    "Línea: ciclo fijo sin fallos ni bloqueos; muestras pequeñas incluyen arranque y drenaje."
+  ]
+}

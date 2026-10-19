@@ -1,4 +1,4 @@
-/* Cognitive Learning Flow v0.5 — universal deterministic timeline and safe arithmetic. */
+/* Cognitive Learning Flow v0.6 — universal deterministic timeline and safe arithmetic. */
 (function (root) {
   'use strict';
   function assert(ok, message) { if (!ok) throw new Error(message); }
@@ -65,6 +65,9 @@
           const keys = action.keys || (action.expression.replace(/\*/g,'×').replace(/\//g,'÷').split('').concat('='));
           for (const key of keys) events.push({type:'key', si, ai, key});
           events.push({type:'calcDone', si, ai, value:calculate(action.expression)});
+        } else if (action.type === 'scenario') {
+          const steps=Number.isInteger(action.frames)?action.frames:18;
+          for(let frame=0;frame<=steps;frame++)events.push({type:'simulationFrame',si,ai,scenarioId:action.scenarioId,frame,frames:steps});
         } else if (action.type === 'visualize') {
           events.push({type:'visualize', si, ai, visualizationId:action.visualizationId, reveal:action.reveal, focus:action.focus || []});
         } else if (action.type === 'highlight') {
@@ -82,7 +85,7 @@
     return {events, ends};
   }
   function snapshot(lesson, compiled, cursor) {
-    const state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1, visualization:null};
+    const state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1, visualization:null,simulation:null};
     const limit=Math.max(0,Math.min(compiled.events.length,Math.trunc(cursor)));
     for(let i=0;i<limit;i++) {
       const e=compiled.events[i];
@@ -94,6 +97,7 @@
       else if(e.type==='key') {state.lastKey=e.key; if(e.key!=='=')state.calculator+=e.key;}
       else if(e.type==='calcDone') {state.calculator=format(e.value);state.lastKey='=';}
       else if(e.type==='highlight') state.highlights=e.targets.slice();
+      else if(e.type==='simulationFrame')state.simulation={id:e.scenarioId,frame:e.frame,frames:e.frames,progress:e.frames?e.frame/e.frames:1};
       else if(e.type==='visualize') state.visualization={id:e.visualizationId,reveal:e.reveal,focus:e.focus.slice()};
       else if(e.type==='diagram') {state.diagram=true;state.diagramText=e.text;}
       else if(e.type==='question')state.question=e.text;
@@ -114,7 +118,7 @@
     const scene=lesson.scenes[state.sceneIndex];
     const cue=state.cue;
     const action=cue?scene.actions[cue.actionIndex]:null;
-    const map={write:['Anotar','write'],calculator:['Calcular','calculate'],highlight:['Relacionar','focus'],diagram:['Representar','draw'],question:['Predecir','predict'],reveal:['Comprobar','verify'],visualize:['Visualizar','visualize']};
+    const map={write:['Anotar','write'],calculator:['Calcular','calculate'],highlight:['Relacionar','focus'],diagram:['Representar','draw'],question:['Predecir','predict'],reveal:['Comprobar','verify'],visualize:['Visualizar','visualize'],scenario:['Simular','simulate']};
     const [verb,kind]=action?(map[action.type]||['Examinar','focus']):['Comprender','orient'];
     let content=action?(action.callout||action.text||action.expression||''):scene.goal;
     const targets=action?(action.focus||action.target||[]):[];

@@ -166,3 +166,28 @@ app.onCue(cue => sincronizarMisElementos(cue));
 ```
 
 No introducir componentes que el usuario no pida. Para gráficos multi-dominio usar `build:resources` o `build:forecast:integrated`; el antiguo `build:html` mantiene un player específico y **no** incorpora el recurso `visualization`. Consulta `references/VISUAL_GRAMMAR.md`.
+
+
+## v0.6 · Simuladores didácticos autónomos
+
+Cuando el procedimiento se beneficia de un modelo que **reacciona a decisiones de entrada**, generar un `lesson.simulations[]` y escenas con acciones `scenario`. Usar `runtime/simulations.js` como modelo matemático puro y `runtime/kit.js` para su visualización opt-in. No inventar una simulación física si el dominio solo necesita una explicación textual.
+
+- Elegir modelo según el contenido: `inventory-eoq`, `queue-mm1`, `production-line`; jamás sustituir datos faltantes por una fórmula de otro problema.
+- **Sincronizar causalmente**: predicción de una decisión → cambio en el parámetro → recálculo determinista → actualización de gráfico/indicadores → explicación de la consecuencia. Cada `scenario` puede tener `frames` asociados al timeline reproducible.
+- Separar **resultado analítico**, **muestra simulada** e **incertidumbre**. Para M/M/1 rechazar espera estacionaria si `λ≥μ` y mostrar por qué.
+- Mostrar sensibilidad al menos de una variable, sin ocultar supuestos ni extrapolar fuera de la zona de validez.
+- Durante evaluación o un checkpoint guiado no resuelto, no revelar la simulación resuelta.
+- En `checkpoint.hints[]`, diseñar pistas crecientes, no una respuesta disfrazada de pista. En `checkpoint.misconceptions[]`, asociar errores aritméticos previsibles con explicaciones de **la operación**, sin atribuir un estado mental al estudiante.
+- Mantener toda salida en componentes independientes de Shadow DOM. El HTML anfitrión decide cómo acomodarlos.
+
+Consultar [references/SIMULATION_ENGINE.md](references/SIMULATION_ENGINE.md) antes de generar modelos operativos. Ejemplo: [examples/operations-lab.lesson.json](examples/operations-lab.lesson.json).
+
+Comandos de la versión:
+
+```bash
+npm run validate:operations
+npm run build:operations
+npm run build:operations:resources
+```
+
+**No considerar la experiencia «completa» sin** pruebas numéricas para sus parámetros, regresión con las lecciones previas y al menos una revisión visual móvil + escritorio.

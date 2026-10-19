@@ -82,3 +82,23 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Graficación avanzada de sensibilidad, simulación estocástica, Monte Carlo.
 - [ ] Diseño instruccional contrastado con estudiantes y auditoría WCAG formal.
 - [ ] Renderizadores 3D/tiempo real como plugins opcionales, siempre con versión textual.
+
+
+## v0.6 · Laboratorios de decisiones (implementado)
+
+- [x] Motor numérico sin DOM de inventario EOQ, cola M/M/1 y estaciones de producción.
+- [x] Simulación de colas estocástica con semilla reproducible; distinción muestra vs teoría.
+- [x] Timeline de escenarios y fotogramas reconstruibles por cursor.
+- [x] Componentes Shadow DOM `simulation` y `sensitivity`; 15 recursos opcionales.
+- [x] Sliders de parámetros validados, restauración y selección de escenarios.
+- [x] Pistas progresivas y diagnóstico básico de errores de cálculo.
+- [x] Caso de integración autónoma con los tres modelos.
+- [x] Pruebas de modelos, escenarios inválidos y aislamiento del modo examen.
+
+## Próximos pasos hacia v0.7
+
+- [ ] Pruebas de navegador sistemáticas en GitHub Actions y accesibilidad WCAG formal.
+- [ ] Animaciones con pausa interpolada fina y menor reconstrucción de DOM.
+- [ ] Simuladores EOQ con descuentos, colas M/M/c o programación de trabajos reales como extensiones **opt-in**.
+- [ ] Analítica de errores consentida y medición de transferencia en estudiantes.
+- [ ] Crear políticas por entorno para CSP estricta, SSR y sitios sin JS inline.

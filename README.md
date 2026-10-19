@@ -186,3 +186,33 @@ app.onCue(cue => console.log(cue.kind, cue.visualization));
 Consulta [Gramática visual](references/VISUAL_GRAMMAR.md) y [Embebido](references/EMBEDDING.md).
 
 **Garantías y límites:** el validador prueba matemáticamente el promedio móvil simple del segundo ejemplo y el caso PERT del primero, pero no prueba cualquier fórmula introducida arbitrariamente por un autor. Los gráficos integrados solo cubren `bar`, `line` y `process`; exportaciones HTML de un único archivo no constituyen exámenes seguros contra inspección del código. Quedan pendientes accesibilidad formal y pruebas con estudiantes.
+
+
+## v0.6 · Simulaciones que responden a las decisiones
+
+Además de los recursos de escenas de v0.5, ahora existen `simulation` y `sensitivity`. Ambos son **opcionales** y pueden ubicarse libremente en cualquier HTML sin modificar los estilos globales.
+
+- **Inventarios EOQ:** costos anuales, tamaño económico de pedido y consumos/reabastecimientos visualizados.
+- **Colas M/M/1:** llegadas y servicio simulados con semilla; diferencia entre espera observada en muestra finita y espera teórica bajo estabilidad.
+- **Producción:** Gantt de piezas/estaciones, cálculo de cuello de botella, capacidad teórica y rendimiento de una muestra.
+- **Sensibilidad:** curvas recalculadas con los parámetros del escenario, sin conectar puntos de colas inestables como si fueran válidos.
+- **Práctica:** pistas progresivas y retroalimentación específica para errores de fórmula frecuentes.
+
+```bash
+npm test
+npm run validate:operations
+npm run build:operations
+npm run build:operations:resources
+# Abrir dist/operations-integrated.html sin conexión.
+```
+
+### Integrar recursos nuevos sin adoptar nuestro diseño
+
+```html
+<div data-clf="simulation"></div>
+<div data-clf="sensitivity"></div>
+```
+
+El anfitrión decide posición, navegación y tema visual. Véase [SIMULATION_ENGINE](references/SIMULATION_ENGINE.md). Una aplicación React/Vue puede montar/desmontar cada recurso mediante `CLFKit.create(lesson).mount(...)` como antes.
+
+**Límite:** las gráficas son representaciones de modelos matemáticos sintéticos, no mediciones de planta reales, y la cola puede variar entre muestras (la semilla es reproducible). Para afirmar validez operativa real se requieren datos y validación externa.

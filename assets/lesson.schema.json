@@ -117,6 +117,15 @@
               "type": "string"
             }
           }
+        },
+        "simulations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
         }
       }
     },
@@ -169,7 +178,8 @@
                     "highlight",
                     "question",
                     "reveal",
-                    "visualize"
+                    "visualize",
+                    "scenario"
                   ]
                 },
                 "text": {
@@ -231,6 +241,15 @@
                 "reveal": {
                   "type": "integer",
                   "minimum": 0
+                },
+                "scenarioId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "frames": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 90
                 }
               }
             }
@@ -255,6 +274,37 @@
               },
               "feedback": {
                 "type": "string"
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "maxItems": 5
+              },
+              "misconceptions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "value",
+                    "feedback"
+                  ],
+                  "properties": {
+                    "value": {
+                      "type": [
+                        "number",
+                        "string"
+                      ]
+                    },
+                    "feedback": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
               }
             }
           }
@@ -373,6 +423,86 @@
           },
           "note": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "simulations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "parameters"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "inventory-eoq",
+              "queue-mm1",
+              "production-line"
+            ]
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "controls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "min",
+                "max",
+                "step"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "step": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          },
+          "sensitivity": {
+            "type": "object",
+            "required": [
+              "parameter",
+              "min",
+              "max"
+            ],
+            "properties": {
+              "parameter": {
+                "type": "string"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
           }
         }
       }
