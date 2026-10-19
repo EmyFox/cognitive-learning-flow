@@ -3,7 +3,7 @@ name: cognitive-learning-flow
 description: Diseña experiencias HTML interactivas que enseñan procedimientos cuantitativos mediante razonamiento observable, cálculos verificables, escritura progresiva, diagramas y práctica guiada. Úsala al crear laboratorios didácticos de ingeniería, matemáticas, estadística, ciencias y preparación de exámenes.
 compatibility: Agentes compatibles con Agent Skills; HTML5, CSS y JavaScript. No requiere Checkfox ni servicios externos.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   opencode/slash: "true"
 ---
 
@@ -95,6 +95,16 @@ Leer según la tarea:
 - `references/ARCHITECTURE.md`: modelo de estados y sincronización.
 - `references/QUALITY_GATES.md`: aceptación y pruebas.
 - `examples/pert-cpm.lesson.json`: caso PERT/CPM verificable.
+
+## Generador HTML reutilizable v0.2
+
+Para obtener un archivo autónomo a partir de un JSON de lección validado:
+
+```sh
+node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html
+```
+
+El motor base está en `runtime/core.js` (timeline/aritmética/instantáneas), `runtime/player.js` (modos y componentes DOM) y `runtime/styles.css` (tokens ajustables). El CLI inserta todo inline para uso sin Internet. Los diagramas SVG actuales cubren redes de actividades PERT; para EOQ, SPC y otros temas crea vistas de dominio en vez de fingir un diagrama PERT. La generación requiere datos matemáticos verificados; el renderer no reemplaza el solver.
 
 ## Comandos para comprobar un caso
 
