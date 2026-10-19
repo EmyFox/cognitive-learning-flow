@@ -9,7 +9,7 @@ import {integrate} from '../scripts/integrate-html.mjs';
 const lesson=JSON.parse(readFileSync('examples/pert-cpm.lesson.json','utf8'));
 function setup(){const ctx={console,clearTimeout,setTimeout};runInNewContext(readFileSync('runtime/core.js','utf8'),ctx);runInNewContext(readFileSync('runtime/kit.js','utf8'),ctx);return ctx.CLFKit;}
 test('Kit is a separate resource controller with no forced page layout',()=>{
- const kit=setup();assert.equal(kit.version,'0.4.0');assert.ok(kit.resources.includes('notebook'));
+ const kit=setup();assert.equal(kit.version,'0.5.0');assert.ok(kit.resources.includes('notebook'));
  const c=kit.create(lesson);assert.equal(c.getState().mode,'demo');assert.equal(c.getState().cursor,0);
  c.seekScene(7);assert.equal(c.getState().snapshot.calculator,'24');
  c.seek(0);assert.equal(c.getState().snapshot.lines.length,0);
@@ -44,7 +44,7 @@ test('Workflow adapter listens only to requested events, maps IDs and disconnect
 });
 test('Separate resources export has no implicit layout or network dependencies',()=>{
  const dir=mkdtempSync(join(tmpdir(),'clf-kit-'));const out=resources(lesson,dir);
- assert.equal(out.manifest.resourceTypes.length,12);
+ assert.equal(out.manifest.resourceTypes.length,13);
  for(const f of ['clf-core.js','clf-kit.js','clf-lesson.js','manifest.json','example-host.html'])assert.ok(readFileSync(join(dir,f),'utf8').length>50);
  const poisoned=structuredClone(lesson);poisoned.problem.statement='</script><script>alert(4)</script>';
  resources(poisoned,dir);assert.doesNotMatch(readFileSync(join(dir,'clf-lesson.js'),'utf8'),/<script>alert\(4\)<\/script>/);
