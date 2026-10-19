@@ -151,3 +151,15 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Añadir Playwright al CI como dependencia **solo de desarrollo**.
 - [ ] Instrumentar mediciones de frames y tiempos de respuesta en equipos económicos.
 - [ ] Añadir adaptadores opcionales Motion y KaTeX solo ante casos que los requieran.
+
+## v0.11 · Fluidez y trazo vectorial
+
+- [x] Reloj rAF compartido para los recursos embebibles (con compatibilidad del motor anterior).
+- [x] SVG de escritura reproducible para las ecuaciones, con texto accesible simultáneo.
+- [x] DOM incremental para cuaderno y calculadora en el kit.
+- [x] Checkpoints de snapshots en el núcleo aritmético.
+- [x] Exportación HTML offline con módulos sincronizados y host de ejemplo.
+- [x] Pruebas de cursors independientes, pausa, seek, estado matemático y SVG.
+- [ ] Migrar `runtime/player.js` completo al reloj compartido.
+- [ ] Tipografía matemática avanzada, matrices y fracciones apiladas como plugin opcional.
+- [ ] Automatizar Chromium y comprobaciones WCAG en CI.

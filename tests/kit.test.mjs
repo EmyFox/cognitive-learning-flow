@@ -9,7 +9,7 @@ import {integrate} from '../scripts/integrate-html.mjs';
 const lesson=JSON.parse(readFileSync('examples/pert-cpm.lesson.json','utf8'));
 function setup(){const ctx={console,clearTimeout,setTimeout};runInNewContext(readFileSync('runtime/core.js','utf8'),ctx);runInNewContext(readFileSync('runtime/kit.js','utf8'),ctx);return ctx.CLFKit;}
 test('Kit is a separate resource controller with no forced page layout',()=>{
- const kit=setup();assert.equal(kit.version,'0.8.0');assert.ok(kit.resources.includes('notebook'));
+ const kit=setup();assert.equal(kit.version,'0.11.0');assert.ok(kit.resources.includes('notebook'));
  const c=kit.create(lesson);assert.equal(c.getState().mode,'demo');assert.equal(c.getState().cursor,0);
  c.seekScene(7);assert.equal(c.getState().snapshot.calculator,'24');
  c.seek(0);assert.equal(c.getState().snapshot.lines.length,0);

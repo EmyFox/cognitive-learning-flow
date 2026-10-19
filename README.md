@@ -262,7 +262,7 @@ npm run build:school
 **Límite:** El trazo es un subrayado SVG animado por eventos matemáticos, no una simulación física exacta del movimiento de una mano. El método de balanceo usa una heurística, no optimización exacta.
 
 
-## v0.10 · Animación fluida sin dependencias extra
+## v0.11 · Animación fluida sin dependencias extra
 
 La libreta ahora utiliza **un único reloj `requestAnimationFrame`**, en lugar de un temporizador independiente por carácter. El cuaderno conserva sus nodos de texto; las fórmulas cambian solo de fase y el estado se recupera desde checkpoints cada 64 eventos. Los acentos breves utilizan Web Animations API. Todo se puede pausar, retroceder y reproducir, y sigue sin necesitar Internet.
 
@@ -278,3 +278,21 @@ npm run build:school
 - **Librerías:** no obligatorias en tiempo de ejecución; elegir adaptadores opcionales según el caso. Véase [MOTION_ENGINE](references/MOTION_ENGINE.md).
 
 La versión anterior queda compatible para los otros tipos de recursos; el nuevo reloj se aplica a la libreta de balanceo y está preparado para integrarse progresivamente al kit general. No implica que todos los renderizadores previos ya estén migrados.
+
+## v0.11 · Reproductor modular fluido y tinta vectorial
+
+- `CLFKit` utiliza `requestAnimationFrame` cuando CLFMotion está cargado (automático con el exportador).
+- `CLFVectorInk` traza ecuaciones como paths SVG, revelados con el cursor del cálculo, no con timers independientes.
+- Notebook y calculadora cambian su contenido sin borrar y recrear todos sus controles cada letra.
+- Core reutiliza checkpoints de estado cada 64 eventos; no filtra respuestas entre modos.
+- Tema predeterminado escolar intacto y opcional `neutral`.
+
+Demostración integrada lista para abrir en un navegador, sin CDN:
+
+```sh
+npm test
+npm run build:fluent
+# dist/fluent-classroom.html
+```
+
+Ver especificación detallada, compatibilidad y limitaciones en `references/VECTOR_INK_AND_CLOCK.md`. Las librerías externas Motion, KaTeX y perfect-freehand son opcionales según el tipo de proyecto, no nuevas dependencias obligatorias.
