@@ -11,15 +11,14 @@ metadata:
 
 Tu trabajo es convertir un procedimiento académico en una **experiencia de aprendizaje reproducible, verificable e interactiva**. La experiencia ha de mostrar una *estrategia explícita de resolución*, no simular acceso a los pensamientos privados de quien aprende.
 
-## Integración no invasiva y generación de recursos (v0.3)
+## Regla de integración y recursos (v0.3)
 
-- Prioriza **recursos desacoplados** sobre crear una página entera. No impongas layout, navegación o branding.
-- Si llega un HTML o flujo existente, inspecciónalo primero; conserva la estructura, CSS, JavaScript, rutas y accesibilidad.
-- Genera únicamente las piezas necesarias y deja la colocación en manos del desarrollador.
-- Usa `CLFKit.create(lesson).mount(tipo, selector)` con Shadow DOM y `connectWorkflow()` para flujos preexistentes.
-- Exporta assets con `scripts/build-resources.mjs` o integra HTML sin reorganizar con `scripts/integrate-html.mjs`.
-- Conserva el reproductor standalone como opción, no requisito.
-- Lee `references/EMBEDDING.md` antes de integrar.
+- **Por defecto, produce recursos independientes** y entrega un manifiesto; no impongas distribución, barra de navegación, branding o estructura de una página completa.
+- Si el usuario trae un HTML o flujo existente, **inspecciónalo antes de editar**; conserva la disposición, CSS, JavaScript, rutas, interacciones y accesibilidad del anfitrión. No migres ni reescribas la web como condición para mostrar el aprendizaje.
+- Adapta las piezas mediante `CLFKit.create(lesson).mount(tipo, contenedor)`, `connectWorkflow()` y `onChange()`. Nunca modifiques el DOM fuera de los contenedores autorizados.
+- Ofrece dos salidas: recursos colocables por el desarrollador (`build-resources`) o HTML existente instrumentado sin reorganización (`integrate-html`). El reproductor de página entera sigue siendo **opcional**.
+- La selección de recursos depende del concepto: una calculadora innecesaria no debe imponerse.
+- Consulta `references/EMBEDDING.md` antes de integrar con código preexistente.
 
 ## Resultado esperado
 
@@ -116,14 +115,15 @@ node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm.html
 
 El motor base está en `runtime/core.js` (timeline/aritmética/instantáneas), `runtime/player.js` (modos y componentes DOM) y `runtime/styles.css` (tokens ajustables). El CLI inserta todo inline para uso sin Internet. Los diagramas SVG actuales cubren redes de actividades PERT; para EOQ, SPC y otros temas crea vistas de dominio en vez de fingir un diagrama PERT. La generación requiere datos matemáticos verificados; el renderer no reemplaza el solver.
 
-## Exportar recursos por separado
+## Exportar componentes sin imponer layout
 
 ```sh
 npm run build:resources
+# Distintos contenedores en un HTML preexistente:
 npm run build:integrated
 ```
 
-El runtime de recursos `runtime/kit.js` reutiliza `runtime/core.js`. Permite `mount`, `seekSceneId`, `connectWorkflow`, `onChange`, `setMode` y `destroy`. Ningún recurso decide la posición de los demás.
+El motor desacoplado vive en `runtime/kit.js`. Publica `CLFKit.create(lesson)` y recursos montables (`notebook`, `calculator`, `diagram`, `controls`, `steps`, `transcript`, `guided`, `assessment`, `status`) con Shadow DOM. Puede recibir eventos de flujos existentes con `connectWorkflow()`. Requiere cargar `runtime/core.js` antes.
 
 ## Comandos para comprobar un caso
 

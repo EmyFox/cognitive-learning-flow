@@ -132,14 +132,22 @@
       "actions": [
         {
           "type": "write",
-          "text": "Objetivos: duración del proyecto, holguras y ruta crítica"
+          "text": "Objetivos: duración del proyecto, holguras y ruta crítica",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "Conviene distinguir duración, holgura y ruta crítica antes de operar."
         },
         {
           "type": "highlight",
           "target": [
             "A",
             "I"
-          ]
+          ],
+          "why": "Reconocemos el inicio y el cierre del proyecto antes de cuantificar el tiempo.",
+          "animation": {
+            "kind": "focus"
+          }
         }
       ]
     },
@@ -151,7 +159,11 @@
       "actions": [
         {
           "type": "diagram",
-          "text": "A→B→D→F→G→I; A→C→E→F→G→I; B→H→I"
+          "text": "A→B→D→F→G→I; A→C→E→F→G→I; B→H→I",
+          "animation": {
+            "kind": "draw"
+          },
+          "why": "La representación espacial muestra precedencias y actividades simultáneas."
         },
         {
           "type": "highlight",
@@ -165,7 +177,11 @@
             "F",
             "G",
             "I"
-          ]
+          ],
+          "why": "Las tareas paralelas no se suman automáticamente.",
+          "animation": {
+            "kind": "focus"
+          }
         }
       ]
     },
@@ -177,7 +193,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "E: a=5, m=7, b=9; te=(a+4m+b)/6"
+          "text": "E: a=5, m=7, b=9; te=(a+4m+b)/6",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "PERT asigna peso cuatro a la estimación más probable."
         },
         {
           "type": "calculator",
@@ -196,6 +216,14 @@
             "÷",
             "6",
             "="
+          ],
+          "why": "PERT asigna peso cuatro a la estimación más probable.",
+          "callout": "Observa cómo la sustitución llega a la calculadora y después al cuaderno.",
+          "animation": {
+            "kind": "calculate"
+          },
+          "focus": [
+            "E"
           ]
         }
       ],
@@ -215,7 +243,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "EF(D)=13; EF(E)=15; ES(F)=max(13,15)=15"
+          "text": "EF(D)=13; EF(E)=15; ES(F)=max(13,15)=15",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "Como F depende de D y E, debe esperar a la última en terminar."
         },
         {
           "type": "highlight",
@@ -223,7 +255,11 @@
             "D",
             "E",
             "F"
-          ]
+          ],
+          "why": "La integración F no puede comenzar hasta que hayan terminado D y E.",
+          "animation": {
+            "kind": "focus"
+          }
         }
       ],
       "checkpoint": {
@@ -242,7 +278,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "ES(I)=max(EF(G),EF(H))=max(22,9)=22"
+          "text": "ES(I)=max(EF(G),EF(H))=max(22,9)=22",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "El arranque I espera a G y H; G termina al día 22."
         },
         {
           "type": "calculator",
@@ -254,7 +294,12 @@
             "+",
             "2",
             "="
-          ]
+          ],
+          "why": "El arranque I espera a G y H; G termina al día 22.",
+          "callout": "Observa cómo la sustitución llega a la calculadora y después al cuaderno.",
+          "animation": {
+            "kind": "calculate"
+          }
         }
       ],
       "checkpoint": {
@@ -273,7 +318,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "LS(I)=24−2=22"
+          "text": "LS(I)=24−2=22",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "Se usa LF(I)=24 y se resta la duración de I."
         },
         {
           "type": "calculator",
@@ -285,7 +334,12 @@
             "−",
             "2",
             "="
-          ]
+          ],
+          "why": "Se usa LF(I)=24 y se resta la duración de I.",
+          "callout": "Observa cómo la sustitución llega a la calculadora y después al cuaderno.",
+          "animation": {
+            "kind": "calculate"
+          }
         }
       ]
     },
@@ -297,7 +351,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "Holgura(B)=5−3=2 días"
+          "text": "Holgura(B)=5−3=2 días",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "La diferencia LS−ES permite saber cuánto puede retrasarse una actividad."
         },
         {
           "type": "calculator",
@@ -308,14 +366,23 @@
             "−",
             "3",
             "="
-          ]
+          ],
+          "why": "La diferencia LS−ES permite saber cuánto puede retrasarse una actividad.",
+          "callout": "Observa cómo la sustitución llega a la calculadora y después al cuaderno.",
+          "animation": {
+            "kind": "calculate"
+          }
         },
         {
           "type": "highlight",
           "target": [
             "B",
             "H"
-          ]
+          ],
+          "why": "B tiene holgura positiva: un pequeño retraso no modifica automáticamente la fecha de terminación.",
+          "animation": {
+            "kind": "focus"
+          }
         }
       ],
       "checkpoint": {
@@ -334,7 +401,11 @@
       "actions": [
         {
           "type": "write",
-          "text": "A→C→E→F→G→I"
+          "text": "A→C→E→F→G→I",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "Las actividades de holgura cero forman una secuencia continua de duración total."
         },
         {
           "type": "calculator",
@@ -353,7 +424,12 @@
             "+",
             "2",
             "="
-          ]
+          ],
+          "why": "Las actividades de holgura cero forman una secuencia continua de duración total.",
+          "callout": "Observa cómo la sustitución llega a la calculadora y después al cuaderno.",
+          "animation": {
+            "kind": "calculate"
+          }
         },
         {
           "type": "highlight",
@@ -364,7 +440,11 @@
             "F",
             "G",
             "I"
-          ]
+          ],
+          "why": "Las actividades de holgura cero forman una secuencia continua de duración total.",
+          "animation": {
+            "kind": "focus"
+          }
         }
       ]
     },
@@ -376,11 +456,19 @@
       "actions": [
         {
           "type": "write",
-          "text": "Varianza en la ruta crítica = 5/3 días²"
+          "text": "Varianza en la ruta crítica = 5/3 días²",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "La aproximación normal no es garantía y depende de supuestos."
         },
         {
           "type": "write",
-          "text": "P(terminar ≤ día 26) ≈ 93.9% bajo los supuestos dados"
+          "text": "P(terminar ≤ día 26) ≈ 93.9% bajo los supuestos dados",
+          "animation": {
+            "kind": "write"
+          },
+          "why": "La aproximación normal no es garantía y depende de supuestos."
         }
       ]
     },
