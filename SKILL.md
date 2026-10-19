@@ -3,7 +3,7 @@ name: cognitive-learning-flow
 description: Diseña experiencias HTML interactivas que enseñan procedimientos cuantitativos mediante razonamiento observable, cálculos verificables, escritura progresiva, diagramas y práctica guiada. Úsala al crear laboratorios didácticos de ingeniería, matemáticas, estadística, ciencias y preparación de exámenes.
 compatibility: Agentes compatibles con Agent Skills; HTML5, CSS y JavaScript. No requiere Checkfox ni servicios externos.
 metadata:
-  version: "0.3.0"
+  version: "0.10.0"
   opencode/slash: "true"
 ---
 
@@ -227,3 +227,12 @@ Antes de generar una animación, verifica matemáticamente cada ecuación con un
 Para clases en diseño escolar, usa `CLFSchoolNotebook` y consulta `references/INK_CHOREOGRAPHY.md`. El trazo de tinta debajo de la fórmula y los resaltados responden a estado calculado (cursor, paso y resultado); al hacer seek reconstruyen la misma proyección. En el diagrama solo se resalta la tarea de la etapa actual, y la estación se revela cuando el evento `station` ocurre. Con `prefers-reduced-motion`, eliminar animación continua sin quitar texto.
 
 Los motores de dominio siguen siendo la fuente única de verdad. No inferir efectividad pedagógica solo a partir de pruebas técnicas; comprobar también con estudiantes.
+
+
+## v0.10 · Rendimiento y fluidez sincronizada (predeterminado)
+
+**Lee `references/MOTION_ENGINE.md` antes de escribir nuevos efectos visuales.** La libreta usa `runtime/motion-clock.js`: un reloj `requestAnimationFrame`, reproducción determinista, interpolación de énfasis con WAAPI nativa, nodos de texto reutilizados e instantáneas cada 64 eventos. Prioriza transiciones que representen decisiones y operaciones verificadas.
+
+**No instales Motion, GSAP, KaTeX ni otras bibliotecas de forma automática.** Consulta primero el contexto técnico: solo añade bibliotecas cuando cubran una necesidad (ecuaciones LaTeX, SVG avanzado, pluma vectorial) y documenta licencia, tamaño, fallback, integridad, accesibilidad y funcionamiento offline.
+
+En HTML ya existente, respetar el layout anfitrión; jamás imponer animaciones continuas fuera del cursor de aprendizaje. Los cambios de velocidad, pausa y seek no pueden filtrar futuros resultados.

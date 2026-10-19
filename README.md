@@ -260,3 +260,21 @@ npm run build:school
 **No imponer interfaz:** `CLFSchoolNotebook.mount(host, lesson)` sigue siendo opcional y usa Shadow DOM. Para integraciones parciales, `CLFInk.project(equation, phase)` puede alimentar cualquier HTML existente sin adoptar el layout de la libreta. Ver [coreografía de tinta](references/INK_CHOREOGRAPHY.md).
 
 **Límite:** El trazo es un subrayado SVG animado por eventos matemáticos, no una simulación física exacta del movimiento de una mano. El método de balanceo usa una heurística, no optimización exacta.
+
+
+## v0.10 · Animación fluida sin dependencias extra
+
+La libreta ahora utiliza **un único reloj `requestAnimationFrame`**, en lugar de un temporizador independiente por carácter. El cuaderno conserva sus nodos de texto; las fórmulas cambian solo de fase y el estado se recupera desde checkpoints cada 64 eventos. Los acentos breves utilizan Web Animations API. Todo se puede pausar, retroceder y reproducir, y sigue sin necesitar Internet.
+
+```bash
+npm test
+npm run build:school
+# Abre dist/school-line-balancing.html
+```
+
+- **Móviles:** probar 375 y 390 px; controles al menos 44 px.
+- **Accesibilidad:** respetar `prefers-reduced-motion` y dejar el contenido matemático legible sin animación.
+- **Integración:** Shadow DOM, no inyecta estilos globales ni cambia layout anfitrión.
+- **Librerías:** no obligatorias en tiempo de ejecución; elegir adaptadores opcionales según el caso. Véase [MOTION_ENGINE](references/MOTION_ENGINE.md).
+
+La versión anterior queda compatible para los otros tipos de recursos; el nuevo reloj se aplica a la libreta de balanceo y está preparado para integrarse progresivamente al kit general. No implica que todos los renderizadores previos ya estén migrados.
