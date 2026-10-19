@@ -8,11 +8,12 @@ const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 export function buildSchoolNotebook(lesson,hostSource){
   const solverCode=readFileSync(resolve(ROOT,'runtime/line-balancing.js'),'utf8');
   const notebookCode=readFileSync(resolve(ROOT,'runtime/school-notebook.js'),'utf8');
+  const inkCode=readFileSync(resolve(ROOT,'runtime/ink-choreography.js'),'utf8');
   const coreCode=readFileSync(resolve(ROOT,'runtime/core.js'),'utf8');
   const result=validateSchool(lesson);
   if (result.taskCount<3)throw new Error('Se necesitan al menos tres tareas para esta demostración');
   const payload=JSON.stringify(lesson).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
-  const inserted=`<script>\n${coreCode}\n${solverCode}\n${notebookCode}\nconst __clfSchoolData=${payload};\nwindow.clfSchoolDemo=CLFSchoolNotebook.mount(document.getElementById('clf-school-mount'),__clfSchoolData);\n</script>`;
+  const inserted=`<script>\n${coreCode}\n${solverCode}\n${inkCode}\n${notebookCode}\nconst __clfSchoolData=${payload};\nwindow.clfSchoolDemo=CLFSchoolNotebook.mount(document.getElementById('clf-school-mount'),__clfSchoolData);\n</script>`;
   if(!hostSource.includes('<div id="clf-school-mount"></div>'))throw new Error('Host sin marcador de montaje explícito');
   if(!/<\/body>/i.test(hostSource))throw new Error('Host sin cierre de body');
   return hostSource.replace(/<\/body>/i,inserted+'\n</body>');

@@ -1,6 +1,6 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Portable interactive learning resources with school-notebook default theme and synchronized reasoning",
   "type": "module",
@@ -22,6 +22,7 @@
     "build:operations:resources": "node scripts/build-resources.mjs examples/operations-lab.lesson.json dist/operations-kit",
     "validate:school": "node scripts/validate-school.mjs examples/line-balancing.school.json",
     "build:school": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html",
-    "build:neutral": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm-neutral.html --theme neutral"
+    "build:neutral": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm-neutral.html --theme neutral",
+    "build:ink-demo": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html"
   }
 }
