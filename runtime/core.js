@@ -1,4 +1,4 @@
-/* Cognitive Learning Flow v0.6 — universal deterministic timeline and safe arithmetic. */
+/* Cognitive Learning Flow v0.11 — universal deterministic timeline and safe arithmetic. */
 (function (root) {
   'use strict';
   function assert(ok, message) { if (!ok) throw new Error(message); }
@@ -82,12 +82,18 @@
       }
       ends.push(events.length);
     }
-    return {events, ends};
+    return {events, ends, checkpoints:new Map()};
   }
+  function cloneState(s){return {...s,lines:s.lines.map(l=>({...l})),highlights:[...s.highlights],reveals:[...s.reveals],cue:s.cue?{...s.cue}:null,visualization:s.visualization?{...s.visualization,focus:[...s.visualization.focus]}:null,simulation:s.simulation?{...s.simulation}:null};}
   function snapshot(lesson, compiled, cursor) {
-    const state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1, visualization:null,simulation:null};
-    const limit=Math.max(0,Math.min(compiled.events.length,Math.trunc(cursor)));
-    for(let i=0;i<limit;i++) {
+    let state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1, visualization:null,simulation:null};
+    const limit=Math.max(0,Math.min(compiled.events.length,Math.trunc(Number(cursor))||0));
+    // Cache immutable copies every 64 semantic events; seek backwards is deterministic.
+    let start=0;const checkpoints=compiled.checkpoints;
+    if(checkpoints instanceof Map){for(let checkpoint=limit-limit%64;checkpoint>=64;checkpoint-=64){
+      const found=checkpoints.get(checkpoint);if(found){state=cloneState(found);start=checkpoint;break;}
+    }}
+    for(let i=start;i<limit;i++) {
       const e=compiled.events[i];
       if(e.type==='scene') { state.sceneIndex=e.si; state.highlights=[]; state.lastKey=''; state.cue=null; }
       else if(e.type==='cue') {state.cue={sceneIndex:e.si,actionIndex:e.ai};state.actionIndex=e.ai;state.actionType=lesson.scenes[e.si].actions[e.ai].type;}
@@ -103,6 +109,7 @@
       else if(e.type==='question')state.question=e.text;
       else if(e.type==='reveal')state.reveals.push(e.text);
     }
+    if(checkpoints instanceof Map && limit>0 && limit%64===0)checkpoints.set(limit,cloneState(state));
     return state;
   }
   function checkNumeric(actual, expected, tolerance) {
@@ -113,8 +120,8 @@
   }
   // A semantic cue always describes an OBSERVABLE instructional decision, never private thought.
   // Derive it from the same timeline cursor driving the notebook, calculator and diagram.
-  function choreography(lesson, compiled, cursor) {
-    const state=snapshot(lesson,compiled,cursor);
+  function choreography(lesson, compiled, cursor, precomputed=null) {
+    const state=precomputed||snapshot(lesson,compiled,cursor);
     const scene=lesson.scenes[state.sceneIndex];
     const cue=state.cue;
     const action=cue?scene.actions[cue.actionIndex]:null;

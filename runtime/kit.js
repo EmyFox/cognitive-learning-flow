@@ -1,4 +1,4 @@
-/* Cognitive Learning Flow v0.6 — host-independent resource kit.
+/* Cognitive Learning Flow v0.11 — host-independent resource kit.
  * Depends on runtime/core.js. Only exposes globalThis.CLFKit; no global stylesheet.
  */
 (function(root) {
@@ -65,7 +65,12 @@ h3{font:800 20px/1.3 Georgia,'Times New Roman',serif;color:#234f7f}
 .paper{background-color:#fffef6;background-image:repeating-linear-gradient(transparent 0 30px,#a9c6df61 31px,transparent 32px);
  box-shadow:inset 0 1px 8px #244c7c13;border:1px solid #d9e0e5;
  color:#275a8d;font:600 16px/32px 'Segoe Print','Comic Sans MS',cursive}
-.line{color:#265c91}
+.line{color:#265c91}.paper .line:last-child{color:#275b8d}
+.clf-formula{background:#f6fbf5;color:#275b8d;border:1px solid #b5cad5;box-shadow:inset 0 1px 5px #244b7911}
+.clf-result{color:#257458}.clf-vector-holder{background:#f8fcf4;border-color:#9bbdd2}
+.clf-chip{background:#e8eee4;color:#41705f;border-color:#b5d4c3}.clf-kind{color:#a16a34}
+.clf-goal{color:#275b8d}.clf-explain{color:#667b8a}.clf-action{background:#fff2c9;color:#775b31;border-left-color:#d6a050}
+.clf-progress{background:#dce5e7}.clf-progress>i{background:linear-gradient(90deg,#78b7af,#3f8d85)}
 .display{border:3px solid #829e9d;border-radius:8px;background:#26434c;color:#f0f8d7;
  box-shadow:inset 0 2px 3px #17242b38}
 button{background:#fffefa;border-color:#c1d1dc;color:#254d78;font-weight:650;
@@ -89,6 +94,7 @@ progress{accent-color:#408c7f}
 @media(max-width:520px){.frame{padding:13px 11px 15px 37px}.frame::before{left:28px}.frame::after{width:23px;background-size:23px 79px;background-position:-3px 0}.paper{padding:12px;font-size:14px}}
 @media(prefers-reduced-motion:reduce){button,.frame,.graph{transition:none!important;animation:none!important}}
 `;
+  const VECTOR_STYLE=`.clf-vector-holder{padding:12px 10px;margin:9px 0 12px;background:rgba(212,236,250,.18);border:1px dashed var(--clf-line);border-radius:10px;overflow-x:auto}.clf-vector-ink{display:block;width:auto;max-width:none;height:54px;overflow:visible}.clf-vector-ink path{vector-effect:non-scaling-stroke}`;
   const svgNS='http://www.w3.org/2000/svg';
   const E=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e;};
   const S=(tag,attrs)=>{const e=document.createElementNS(svgNS,tag);for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,String(v));return e;};
@@ -102,25 +108,25 @@ progress{accent-color:#408c7f}
     let theme=options.theme||'school-notebook';
     const compiled=core.compile(lesson), mounts=new Map(), listeners=new Set(), cueListeners=new Set();
     let previousCue=null;
-    const available=new Set(TYPES);let timer=null,destroyed=false;
+    const available=new Set(TYPES);let timer=null,motion=null,destroyed=false;
     let selectedScenario=null,scenarioOverrides={};
     let mode=['demo','guided','assessment'].includes(options.mode)?options.mode:'demo';
     let cursor=0,playing=false,speed=1,guideIndex=0,guideSolved=false,guideHint=false,guideHintLevel=0,attempts=0,guideMessage='',guideDraft='',manual='',examAnswers={},submitted=false;
     const workflowListeners=new Set();
     const reduced=typeof root.matchMedia==='function'&&root.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function assertLive(){if(destroyed)throw new Error('Instancia destruida');}
-    function stopTimer(){playing=false;if(timer!==null){clearTimeout(timer);timer=null;}}
+    function stopTimer(){playing=false;if(motion)motion.pause();if(timer!==null){clearTimeout(timer);timer=null;}}
     function index(){const current=core.snapshot(lesson,compiled,cursor);return current.sceneIndex;}
     function sceneEnd(n){return compiled.ends[Math.max(0,Math.min(compiled.ends.length-1,n))];}
     function view(){
-      const demo=core.snapshot(lesson,compiled,cursor);
+      const demo=mode==='demo'?core.snapshot(lesson,compiled,cursor):null;
       const guided=guideSolved?core.snapshot(lesson,compiled,sceneEnd(guideIndex)):{lines:[],calculator:manual||'0',lastKey:'',highlights:[],diagram:true,visualization:null};
       const blank={lines:[],calculator:'0',lastKey:'',highlights:[],diagram:false,visualization:null};
       return mode==='demo'?demo:mode==='guided'?guided:blank;
     }
-    function scenarioView(){
+    function scenarioView(snapshot=null){
       if(!sim||mode==='assessment'||(mode==='guided'&&!guideSolved))return null;
-      const snap=view();const specs=lesson.simulations||[];
+      const snap=snapshot||view();const specs=lesson.simulations||[];
       const id=selectedScenario || snap.simulation?.id || specs[0]?.id;
       const spec=specs.find(x=>x.id===id);
       if(!spec)return null;
@@ -146,7 +152,7 @@ progress{accent-color:#408c7f}
       scenarioOverrides[view.id]=next;emit();return true;
     }
     function resetScenario(){assertLive();if(mode==='assessment')return;const current=scenarioView();if(current)delete scenarioOverrides[current.id];emit();}
-    function state(){return Object.freeze({theme,simulation:mode==='assessment'?null:scenarioView(),cue:mode==='demo'?core.choreography(lesson,compiled,cursor):mode==='guided'&&guideSolved?core.choreography(lesson,compiled,sceneEnd(guideIndex)):null,mode,cursor,playing,speed,sceneIndex:mode==='demo'?index():guideIndex,totalScenes:lesson.scenes.length,guideSolved,guideHint,guideHintLevel,attempts,submitted,examAnswers:{...examAnswers},snapshot:view()});}
+    function state(){const snap=view();return Object.freeze({theme,simulation:mode==='assessment'?null:scenarioView(snap),cue:mode==='demo'?core.choreography(lesson,compiled,cursor,snap):mode==='guided'&&guideSolved?core.choreography(lesson,compiled,sceneEnd(guideIndex),snap):null,mode,cursor,playing,speed,sceneIndex:mode==='demo'?snap.sceneIndex:guideIndex,totalScenes:lesson.scenes.length,guideSolved,guideHint,guideHintLevel,attempts,submitted,examAnswers:{...examAnswers},snapshot:snap});}
     function emit(){if(destroyed)return;
       const current=state();
       for(const fn of listeners){try{fn(current);}catch(error){console.error('CLFKit listener:',error);}}
@@ -170,8 +176,8 @@ progress{accent-color:#408c7f}
     }
     function pause(){assertLive();stopTimer();emit();}
     function tick(){if(!playing||destroyed)return;if(cursor>=compiled.events.length){stopTimer();emit();return;}cursor++;const event=compiled.events[cursor-1];if(event.type==='simulationFrame'&&event.frame===0)selectedScenario=null;emit();const delay=reduced?1:event.type==='glyph'?48:170;timer=setTimeout(tick,Math.max(1,delay/speed));}
-    function play(){assertLive();if(mode!=='demo')return;if(cursor>=compiled.events.length)cursor=0;stopTimer();playing=true;emit();tick();}
-    function seek(to){assertLive();stopTimer();selectedScenario=null;cursor=Math.max(0,Math.min(compiled.events.length,Math.trunc(to)||0));emit();}
+    function play(){assertLive();if(mode!=='demo')return;stopTimer();if(motion){playing=true;motion.play();emit();return;}if(cursor>=compiled.events.length)cursor=0;playing=true;emit();tick();}
+    function seek(to){assertLive();stopTimer();selectedScenario=null;const next=Math.max(0,Math.min(compiled.events.length,Math.trunc(Number(to))||0));if(motion){motion.seek(next);return;}cursor=next;emit();}
     function seekScene(to){const n=Math.max(0,Math.min(lesson.scenes.length-1,Math.trunc(to)||0));seek(sceneEnd(n));}
     function seekSceneId(id){assertLive();const n=lesson.scenes.findIndex(s=>s.id===id);if(n===-1)throw new Error('Etapa no reconocida: '+id);seekScene(n);}
     function connectWorkflow({target=typeof document!=='undefined'?document:null,eventName='workflow:step',resolve}={}){
@@ -192,8 +198,8 @@ progress{accent-color:#408c7f}
     }
     function next(){assertLive();if(mode==='demo')seekScene(Math.min(index()+1,lesson.scenes.length-1));else if(mode==='guided'&&guideSolved){if(guideIndex<lesson.scenes.length-1){guideIndex++;guideSolved=false;guideHint=false;guideHintLevel=0;guideMessage='';attempts=0;guideDraft='';manual='';emit();}else setMode('assessment');}}
     function previous(){assertLive();if(mode==='demo')seek(index()<=0?0:sceneEnd(index()-1));else if(mode==='guided'){guideIndex=Math.max(0,guideIndex-1);guideSolved=false;guideHint=false;guideHintLevel=0;guideMessage='';attempts=0;guideDraft='';manual='';emit();}}
-    function setSpeed(value){assertLive();if(![.5,1,1.5,2].includes(Number(value)))throw new RangeError('Velocidad no admitida');speed=Number(value);emit();}
-    function setMode(value){assertLive();if(!['demo','guided','assessment'].includes(value))throw new Error('Modo desconocido');stopTimer();mode=value;cursor=0;guideIndex=0;guideSolved=false;guideHint=false;guideHintLevel=0;attempts=0;guideMessage='';guideDraft='';manual='';submitted=false;examAnswers={};selectedScenario=null;scenarioOverrides={};emit();}
+    function setSpeed(value){assertLive();if(![.5,1,1.5,2].includes(Number(value)))throw new RangeError('Velocidad no admitida');speed=Number(value);if(motion)motion.setSpeed(speed);emit();}
+    function setMode(value){assertLive();if(!['demo','guided','assessment'].includes(value))throw new Error('Modo desconocido');stopTimer();mode=value;cursor=0;guideIndex=0;guideSolved=false;guideHint=false;guideHintLevel=0;attempts=0;guideMessage='';guideDraft='';manual='';submitted=false;examAnswers={};selectedScenario=null;scenarioOverrides={};if(motion)motion.seek(0);else emit();}
     function restart(){setMode(mode);}
     function answer(value){assertLive();if(mode!=='guided'||guideSolved)return false;const cp=lesson.scenes[guideIndex].checkpoint;if(!cp)return false;const ok=typeof cp.answer==='number'?core.checkNumeric(value,cp.answer,cp.tolerance):String(value).trim().toLowerCase()===String(cp.answer).trim().toLowerCase();attempts++;if(ok){guideSolved=true;guideMessage=cp.feedback||'Respuesta correcta';}else {const misconception=(cp.misconceptions||[]).find(item=>typeof item.value==='number'?core.checkNumeric(value,item.value,cp.tolerance||0.001):String(value).trim().toLowerCase()===String(item.value).trim().toLowerCase());guideMessage=misconception?.feedback||'Todavía no coincide; revisa las unidades y el procedimiento.';}emit();return ok;}
     function hint(){assertLive();if(mode!=='guided'||guideSolved)return;guideHint=true;const cp=lesson.scenes[guideIndex].checkpoint;guideHintLevel=Math.min(guideHintLevel+1,Math.max(1,cp?.hints?.length||0));emit();}
@@ -210,13 +216,13 @@ progress{accent-color:#408c7f}
       // the timeline or steal focus from the host application.
       for(const item of mounts.values()){
         item.wrapper.dataset.clfTheme=next;
-        item.style.textContent=STYLE+(theme==='school-notebook'?SCHOOL_STYLE:'');
+        item.style.textContent=STYLE+VECTOR_STYLE+(theme==='school-notebook'?SCHOOL_STYLE:'');
       }
       for(const fn of listeners){try{fn(state());}catch(error){console.error('CLFKit listener:',error);}}
     }
-    function mount(type,host){assertLive();if(!available.has(type))throw new Error('Recurso CLF desconocido: '+type);if(typeof host==='string')host=document.querySelector(host);if(!host || !host.appendChild)throw new Error('Contenedor destino inexistente');const wrapper=E('div');wrapper.dataset.clfResource=type;wrapper.dataset.clfTheme=theme;const shadow=wrapper.attachShadow({mode:'open'});const style=E('style',STYLE+(theme==='school-notebook'?SCHOOL_STYLE:''));const body=E('section');shadow.append(style,body);host.append(wrapper);const item={type,host,wrapper,shadow,body,style};mounts.set(wrapper,item);render(item);return ()=>unmount(wrapper);}
+    function mount(type,host){assertLive();if(!available.has(type))throw new Error('Recurso CLF desconocido: '+type);if(typeof host==='string')host=document.querySelector(host);if(!host || !host.appendChild)throw new Error('Contenedor destino inexistente');const wrapper=E('div');wrapper.dataset.clfResource=type;wrapper.dataset.clfTheme=theme;const shadow=wrapper.attachShadow({mode:'open'});const style=E('style',STYLE+VECTOR_STYLE+(theme==='school-notebook'?SCHOOL_STYLE:''));const body=E('section');shadow.append(style,body);host.append(wrapper);const item={type,host,wrapper,shadow,body,style};mounts.set(wrapper,item);render(item);return ()=>unmount(wrapper);}
     function unmount(wrapper){const item=mounts.get(wrapper);if(item){item.wrapper.remove();mounts.delete(wrapper);}}
-    function destroy(){if(destroyed)return;stopTimer();for(const detach of [...workflowListeners])detach();for(const item of [...mounts.values()])unmount(item.wrapper);listeners.clear();cueListeners.clear();destroyed=true;}
+    function destroy(){if(destroyed)return;stopTimer();if(motion)motion.destroy();for(const detach of [...workflowListeners])detach();for(const item of [...mounts.values()])unmount(item.wrapper);listeners.clear();cueListeners.clear();destroyed=true;}
     function buildGraph(highlights,allowed){
       const box=E('div',undefined,'graph');const data=lesson.problem.activities;
       if(!allowed||!Array.isArray(data)||!data.length){box.append(E('p','Este procedimiento no requiere red de precedencias.'));return box;}
@@ -359,6 +365,29 @@ progress{accent-color:#408c7f}
       outer.append(E('p',`${model.label} · parámetro: ${model.parameter} · línea ámbar = selección actual.`,'tag'));
       return outer;
     }
+    const cueBounds=new Map();
+    for(let j=0;j<compiled.events.length;j++){
+      const event=compiled.events[j];if(event.type==='cue')cueBounds.set(event.si+':'+event.ai,{start:j,end:compiled.events.length});
+      if((event.type==='cue'||event.type==='scene')&&j>0){const earlier=[...cueBounds.values()].at(-1);if(event.type==='cue'){
+        const keys=[...cueBounds.keys()];if(keys.length>1)cueBounds.get(keys.at(-2)).end=j;
+      }else if(earlier&&earlier.start<j)earlier.end=j;}
+    }
+    function formulaReady(cue,snap){
+      if(!cue?.expression)return false;
+      const action=lesson.scenes[cue.sceneIndex]?.actions[cue.actionIndex];
+      if(action?.type!=='calculator')return snap.lastKey==='=';
+      const range=cueBounds.get(cue.sceneIndex+':'+cue.actionIndex);
+      if(!range)return false;
+      for(let k=range.start;k<Math.min(cursor,range.end);k++)if(compiled.events[k].type==='calcDone')return true;
+      return false;
+    }
+    function vectorProgress(cue){
+      if(!cue?.expression)return 0;
+      const bounds=cueBounds.get(cue.sceneIndex+':'+cue.actionIndex);
+      const action=lesson.scenes[cue.sceneIndex]?.actions[cue.actionIndex];
+      if(!bounds||action?.type!=='calculator')return 1;
+      return Math.max(0,Math.min(1,(cursor-bounds.start-1)/Math.max(1,bounds.end-bounds.start-1)));
+    }
     function render(item,frame){
       const {type,body}=item;
       const st=frame||state(),snap=st.snapshot,cue=st.cue;
@@ -372,23 +401,49 @@ progress{accent-color:#408c7f}
       else if(type==='guided')signature=mode+'|'+guideIndex+'|'+guideSolved+'|'+guideHint+'|'+guideHintLevel+'|'+attempts+'|'+guideMessage;
       else if(type==='assessment')signature=mode+'|'+submitted+'|'+JSON.stringify(examAnswers);
       else if(type==='data')signature=mode+'|'+JSON.stringify(cue?.targets||[]);
-      else if(type==='formula')signature=mode+'|'+cue?.expression+'|'+snap.lastKey+'|'+snap.calculator;
+      else if(type==='formula')signature=mode+'|'+cue?.expression+'|'+cue?.id+'|'+guideSolved;
       else if(type==='reasoning')signature=mode+'|'+cue?.id;
       else if(type==='visualization')signature=mode+'|'+JSON.stringify(snap.visualization)+'|'+guideSolved;
       else if(type==='simulation'||type==='sensitivity')signature=mode+'|'+JSON.stringify(st.simulation)+'|'+JSON.stringify(scenarioOverrides)+'|'+guideSolved;
       else signature=mode+'|'+cursor+'|'+playing+'|'+speed;
       if(item.lastSignature===signature){
         if(type==='reasoning'&&cue){const fill=body.querySelector('.clf-progress i');if(fill)fill.style.width=(cue.progress*100).toFixed(2)+'%';}
+        if(type==='formula'&&item.formulaVector){item.formulaVector.setProgress(vectorProgress(cue));const result=body.querySelector('.clf-result-or-pending');if(result){const done=formulaReady(cue,snap);result.textContent=done?'= '+core.format(cue.verified):'Sustituyendo valores…';result.className='clf-result-or-pending '+(done?'clf-result':'muted');}}
         return;
       }
-      item.lastSignature=signature;body.replaceChildren();
+      // v0.11: preserve live nodes on every glyph/key; no 15-widget document reflow.
+      if(item.lastMode===mode && type==='notebook' && item.paper){
+        item.lastSignature=signature;
+        const lines=snap.lines;
+        if(!lines.length){item.paper.replaceChildren(E('div',inExamText(),'muted'));item.inkLines=[];}
+        else{
+          if(!item.inkLines.length)item.paper.replaceChildren();
+          while(item.inkLines.length>lines.length)item.inkLines.pop().remove();
+          for(let i=0;i<lines.length;i++){
+            if(!item.inkLines[i]){const row=E('div','','line');item.inkLines.push(row);item.paper.append(row);}
+            if(item.inkLines[i].textContent!==lines[i].text)item.inkLines[i].textContent=lines[i].text;
+          }
+        }
+        return;
+      }
+      if(item.lastMode===mode && type==='calculator' && item.calcDisplay &&
+          (mode==='demo'||mode==='guided'&&guideSolved)&&item.lastCalcGuideSolved===guideSolved){
+        item.lastSignature=signature;
+        item.calcDisplay.textContent=snap.calculator||'0';
+        for(const key of item.calcKeys||[])key.classList.toggle('active',key.dataset.key===snap.lastKey);
+        if(item.calcDescription)item.calcDescription.textContent=mode==='demo'&&cue?.expression?cue.expression:'';
+        return;
+      }
+      item.lastSignature=signature;item.lastMode=mode;body.replaceChildren();
+      function inExamText(){return mode==='assessment'?'Cuaderno disponible después de la evaluación.':'Las anotaciones aparecerán aquí.';}
+      if(type==='notebook'){item.paper=null;item.inkLines=[];}if(type==='calculator'){item.calcDisplay=null;item.calcKeys=[];item.calcDescription=null;}if(type==='formula')item.formulaVector=null;
       const fresh=!!cue&&item.lastCue!==cue.id;item.lastCue=cue?.id||null;const inExam=mode==='assessment';const f=E('div',undefined,'frame');const title=label=>f.append(E('p',label,'head'));if(fresh && ['reasoning','formula','data'].includes(type)) f.classList.add('clf-spotlight');
       const button=(label,fn,cls='',disabled=false)=>{const b=E('button',label,cls);b.type='button';b.disabled=disabled;b.addEventListener('click',fn);return b;};
-      if(type==='notebook'){title('Cuaderno · escritura en curso');const paper=E('div',undefined,'paper');paper.setAttribute('aria-label','Anotaciones del procedimiento');for(const line of snap.lines)paper.append(E('div',line.text,'line'));if(!snap.lines.length)paper.append(E('div',inExam?'Cuaderno disponible después de la evaluación.':'Las anotaciones aparecerán aquí.','muted'));f.append(paper);}
+      if(type==='notebook'){title('Cuaderno · escritura en curso');const paper=E('div',undefined,'paper');paper.setAttribute('aria-label','Anotaciones del procedimiento');for(const line of snap.lines)paper.append(E('div',line.text,'line'));if(!snap.lines.length)paper.append(E('div',inExam?'Cuaderno disponible después de la evaluación.':'Las anotaciones aparecerán aquí.','muted'));f.append(paper);item.paper=paper;item.inkLines=Array.from(paper.querySelectorAll('.line'));}
       if(type==='calculator'){
-        title('Calculadora');const display=E('div',snap.calculator||'0','display');display.setAttribute('role','status');f.append(display);
-        if(mode==='demo'){const demoKeys=E('div',undefined,'keypad');for(const key of KEYS){const keyButton=E('button',key,key===snap.lastKey?'active':'');keyButton.type='button';keyButton.disabled=true;keyButton.setAttribute('aria-label','Tecla '+key);demoKeys.append(keyButton);}f.append(demoKeys);}
-        if(mode==='demo'&&cue?.expression){f.append(E('p',cue.expression,'tag'));}if(mode==='guided'&&!guideSolved){const keys=E('div',undefined,'keypad');for(const key of KEYS)keys.append(button(key,()=>manualKey(key)));f.append(keys);}else if(mode==='demo'){const p=E('div','Operación sincronizada con la escena.','tag');f.append(p);}else f.append(E('p','Sin ayuda de calculadora durante la evaluación.','muted'));
+        title('Calculadora');const display=E('div',snap.calculator||'0','display');display.setAttribute('role','status');f.append(display);item.calcDisplay=display;item.lastCalcGuideSolved=guideSolved;
+        if(mode==='demo'){const demoKeys=E('div',undefined,'keypad');for(const key of KEYS){const keyButton=E('button',key,key===snap.lastKey?'active':'');keyButton.type='button';keyButton.disabled=true;keyButton.setAttribute('aria-label','Tecla '+key);keyButton.dataset.key=key;item.calcKeys.push(keyButton);demoKeys.append(keyButton);}f.append(demoKeys);}
+        if(mode==='demo'&&cue?.expression){const description=E('p',cue.expression,'tag');item.calcDescription=description;f.append(description);}if(mode==='guided'&&!guideSolved){const keys=E('div',undefined,'keypad');for(const key of KEYS)keys.append(button(key,()=>manualKey(key)));f.append(keys);}else if(mode==='demo'){const p=E('div','Operación sincronizada con la escena.','tag');f.append(p);}else f.append(E('p','Sin ayuda de calculadora durante la evaluación.','muted'));
       }
       if(type==='diagram'){title('Diagrama · conexiones vivas');f.append(buildGraph(cue?.targets?.length?cue.targets:snap.highlights,!inExam&&(mode==='guided'||snap.diagram)));}
       if(type==='visualization'){title('Representación · visualización sincronizada');f.append(buildVisualization(snap.visualization,!inExam));}
@@ -454,8 +509,10 @@ progress{accent-color:#408c7f}
       }
       if(type==='formula'){
         title('Mesa de cálculo');if(inExam) f.append(E('p','Resultado oculto durante la evaluación.','muted'));
-        else if(cue?.expression){f.append(E('div',cue.expression,'clf-formula'));const isFinished=snap.lastKey==='=';
-          f.append(E('div',isFinished?'= '+core.format(cue.verified):'Sustituyendo valores…',isFinished?'clf-result':'muted'));
+        else if(cue?.expression){f.append(E('div',cue.expression,'clf-formula'));
+          if(root.CLFVectorInk){const vectorHolder=E('div',undefined,'clf-vector-holder');item.formulaVector=root.CLFVectorInk.mount(vectorHolder,cue.expression,{progress:vectorProgress(cue),color:theme==='school-notebook'?'#275b8d':'#7becd0'});f.append(vectorHolder);}
+          const isFinished=formulaReady(cue,snap);
+          f.append(E('div',isFinished?'= '+core.format(cue.verified):'Sustituyendo valores…','clf-result-or-pending '+(isFinished?'clf-result':'muted')));
           f.append(E('p',cue.reason,'muted'));
         }else f.append(E('p','La fórmula se mostrará cuando llegue su operación.','muted'));
       }
@@ -492,8 +549,16 @@ progress{accent-color:#408c7f}
       if(type==='status'){title('Estado');f.append(E('p',`Modalidad: ${mode} · Etapa ${mode==='demo'?index()+1:guideIndex+1}/${lesson.scenes.length} · ${playing?'Reproduciendo':'Pausado'}`));}
       body.append(f);
     }
+    // rAF everywhere, not just the standalone notebook. Older CLFKit-only consumers
+    // retain the timer fallback until they load clf-motion.js (exports always bundle it).
+    if(root.CLFMotion && typeof root.requestAnimationFrame==='function'){
+      motion=root.CLFMotion.createClock({events:compiled.events,reduced,
+        onCursor:(next,event)=>{cursor=next;playing=motion.getState().playing;if(event?.type==='simulationFrame'&&event.frame===0)selectedScenario=null;emit();},
+        onComplete:()=>{playing=false;emit();}
+      });
+    }
     return Object.freeze({mount,setTheme,onChange,onCue,seekAction,selectScenario,setScenarioParameter,resetScenario,getScenario:scenarioView,getState:state,play,pause,seek,seekScene,seekSceneId,connectWorkflow,next,previous,setMode,setSpeed,restart,answer,hint,reveal,manualKey,selectAnswer,submit,destroy,resources:Object.freeze([...TYPES])});
   }
   if(root.CLFKit)throw new Error('CLFKit ya está definido: evita cargarlo dos veces');
-  root.CLFKit=Object.freeze({create,registerVisualization,resources:Object.freeze([...TYPES]),version:'0.8.0',themes:THEMES,defaultTheme:'school-notebook'});
+  root.CLFKit=Object.freeze({create,registerVisualization,resources:Object.freeze([...TYPES]),version:'0.11.0',themes:THEMES,defaultTheme:'school-notebook'});
 })(globalThis);

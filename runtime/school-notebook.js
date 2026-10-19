@@ -1,4 +1,4 @@
-/* CLF v0.10: smooth, reversible school notebook with semantic ink choreography. */
+/* CLF v0.11: smooth, reversible school notebook with semantic ink choreography. */
 (function (root) {
 'use strict';
 const CSS=String.raw`
@@ -6,7 +6,7 @@ const CSS=String.raw`
 .phase-ribbon{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #b5cbd9;background:#eaf3f5;border-radius:10px;margin:0 0 14px;color:#285a84;flex-wrap:wrap;min-height:44px}
 .phase-icon{font-size:17px;color:#dd9b3b}.phase-ribbon #phase-label{font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.1em}.phase-ribbon #phase-action{margin-left:auto;color:#7187a0;font-size:11px}
 .equation-board{background:#fffaf0;border:1px solid #e8d6a6;border-radius:13px;padding:13px 13px 4px;margin:0 0 15px;box-shadow:inset 0 0 0 3px #ffffff9c;overflow:hidden}
-.equation-steps{display:grid;gap:5px;margin:10px 0 2px}.eq-row{display:flex;gap:12px;align-items:center;min-height:34px;border-radius:8px;padding:5px 9px;color:#9ca8b2;opacity:.5;background:#f3f0e8;transition:background .32s cubic-bezier(.2,.8,.2,1),opacity .32s cubic-bezier(.2,.8,.2,1),transform .32s cubic-bezier(.2,.8,.2,1)}.eq-row.visible{transform:translateY(0);background:#fffefc;color:#285583;opacity:1}.eq-row.current{transform:translateX(2px);background:#fff0bf;color:#203e62;box-shadow:inset 3px 0 0 #dd9b38}.eq-index{font:800 10px/1 ui-monospace,monospace;color:#be8542}.eq-text{font:700 clamp(12px,1.5vw,16px)/1.45 'Segoe Print','Comic Sans MS',cursive;overflow-wrap:anywhere}
+.eq-vector-holder{overflow-x:auto;margin:9px 0 0;padding:6px;border:1px dashed #b3cfe0;border-radius:9px;background:#f5fbfc}.eq-vector-holder svg{display:block;max-width:none;height:46px}.eq-vector-holder path{vector-effect:non-scaling-stroke}.equation-steps{display:grid;gap:5px;margin:10px 0 2px}.eq-row{display:flex;gap:12px;align-items:center;min-height:34px;border-radius:8px;padding:5px 9px;color:#9ca8b2;opacity:.5;background:#f3f0e8;transition:background .32s cubic-bezier(.2,.8,.2,1),opacity .32s cubic-bezier(.2,.8,.2,1),transform .32s cubic-bezier(.2,.8,.2,1)}.eq-row.visible{transform:translateY(0);background:#fffefc;color:#285583;opacity:1}.eq-row.current{transform:translateX(2px);background:#fff0bf;color:#203e62;box-shadow:inset 3px 0 0 #dd9b38}.eq-index{font:800 10px/1 ui-monospace,monospace;color:#be8542}.eq-text{font:700 clamp(12px,1.5vw,16px)/1.45 'Segoe Print','Comic Sans MS',cursive;overflow-wrap:anywhere}
 .equation-insight{font:600 12px/1.45 system-ui,sans-serif;color:#647b88;margin:9px 2px 3px} .ink-stroke{display:block;width:100%;height:17px;max-width:320px;overflow:visible;margin-top:2px}.ink-stroke path{transition:stroke-dashoffset .36s cubic-bezier(.22,.8,.3,1)}
 .transfer-lane{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:9px 0 12px;padding:11px;background:#f2f7f7;border:1px dashed #b9cad1;border-radius:12px}.lane-caption{flex:0 0 100%;font-size:10px;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:#69829a}.lane-group{display:flex;align-items:center;gap:4px;background:white;border-radius:8px;border:1px solid #b7d1d6;padding:6px 8px}.lane-group b{font:800 11px ui-monospace;color:#315978;margin-right:2px}.lane-group.pending{opacity:.42}.task-chip{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:6px;background:#ffeab4;color:#885824;border:1px solid #efd18c;font:800 11px ui-monospace,monospace}
 .scrub{width:100%;accent-color:#2f668d;min-height:24px;margin:9px 0;cursor:pointer;touch-action:pan-y}
@@ -180,7 +180,7 @@ function mount(host,rawLesson){
   const finish=()=>activeAnimations.delete(animation);
   animation.addEventListener('finish',finish,{once:true});animation.addEventListener('cancel',finish,{once:true});
  }
- const inkNodes=[];let equationSource=null,equationRows=[],priorPhase=-1,priorFocus='';
+ const inkNodes=[];let equationSource=null,equationRows=[],priorPhase=-1,priorFocus='',equationVector=null;
  function updateInkLines(lines,showCursor){
   const holder=$('inklines');let changed=false;
   while(inkNodes.length>lines.length){inkNodes.pop().remove();changed=true;}
@@ -225,11 +225,12 @@ function mount(host,rawLesson){
   const board=$('equation-board'),content=$('equation-steps'),eq=stage.equation;
   board.hidden=!eq||mode!=='demo';if(!eq||mode!=='demo')return;
   if(equationSource!==eq){
-   equationSource=eq;priorPhase=-1;content.replaceChildren();equationRows=[];
+   equationSource=eq;priorPhase=-1;if(equationVector)equationVector.destroy();equationVector=null;content.replaceChildren();equationRows=[];
    for(let i=0;i<3;i++){
     const row=mk('div','eq-row');row.append(mk('span','eq-index',String(i+1).padStart(2,'0')),mk('span','eq-text','················'));
     content.append(row);equationRows.push(row);
    }
+   if(root.CLFVectorInk){const slot=mk('div','eq-vector-holder');content.append(slot);equationVector=root.CLFVectorInk.mount(slot,eq.symbol+' = '+eq.substitution,{progress:0});}
    content.append(mk('p','equation-insight',''));
   }
   if(priorPhase!==snap.equationPhase){
@@ -240,6 +241,7 @@ function mount(host,rawLesson){
     if(txt.textContent!==value)txt.textContent=value;
     row.classList.toggle('visible',part.visible);row.classList.toggle('current',part.active);
    }
+   if(equationVector)equationVector.setProgress(snap.equationPhase/3);
    const insight=content.lastChild;insight.textContent=projection.insight?'↳ '+projection.insight:'';
    $('ink-underline').setAttribute('stroke-dashoffset',String(root.CLFInk.underline(snap.equationPhase===0?0:snap.equationPhase===1?.33:snap.equationPhase===2?.66:1)));
   }
@@ -293,5 +295,5 @@ function mount(host,rawLesson){
  const controller={play,pause,seek,seekScene,setMode:changeMode,setDemand(value){if(!Number.isFinite(value)||value<=0)throw Error('Demanda inválida');solver.solve({...data,demand:value});stop();demand=value;configure();if(mode==='lab')renderLab();else if(mode==='practice')renderPractice();else render();},getState(){return {mode,demand,cursor,totalEvents:timeline.events.length,stage:snapshot(timeline,cursor).scene,playing,stations:result.stations.length,cycle:result.cycle,efficiency:result.efficiency};},destroy(){stop();clock?.destroy();document.removeEventListener('visibilitychange',visibilityPause);mountpoint.remove();broken=true;}};
  return Object.freeze(controller);
 }
-root.CLFSchoolNotebook=Object.freeze({mount,version:'0.10.0',previewStages:buildStages,compileStages,snapshot});
+root.CLFSchoolNotebook=Object.freeze({mount,version:'0.11.0',previewStages:buildStages,compileStages,snapshot});
 })(globalThis);

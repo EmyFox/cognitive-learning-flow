@@ -3,11 +3,22 @@ name: cognitive-learning-flow
 description: Diseña experiencias HTML interactivas que enseñan procedimientos cuantitativos mediante razonamiento observable, cálculos verificables, escritura progresiva, diagramas y práctica guiada. Úsala al crear laboratorios didácticos de ingeniería, matemáticas, estadística, ciencias y preparación de exámenes.
 compatibility: Agentes compatibles con Agent Skills; HTML5, CSS y JavaScript. No requiere Checkfox ni servicios externos.
 metadata:
-  version: "0.10.0"
+  version: "0.11.0"
   opencode/slash: "true"
 ---
 
 # Cognitive Learning Flow (CLF)
+
+## Política visual predeterminada v0.11
+
+- **Siempre** privilegiar el tema `school-notebook` (libreta cuadriculada), salvo si existe un lenguaje visual del anfitrión que deba preservarse.
+- En cada operación relevante sincronizar: **concepto → datos resaltados → sustitución → tinta SVG → teclado/calculadora → resultado verificado → diagrama**. No usar animaciones decorativas que simulen la resolución.
+- En HTML existentes, montar solo los recursos que el sitio necesite; jamás reestructurar la página del usuario por defecto.
+- Para recursos modulables generar `clf-motion.js` y `clf-vector-ink.js` antes de `clf-kit.js`. Ambos deben ser opcionales en el código de autoría, pero siempre empaquetados en el exportador oficial.
+- Pausar, saltar de escena o retroceder debe reconstruir la misma ecuación y el mismo trazo; nunca permitir que CSS revele una respuesta anticipadamente.
+- Respetar `prefers-reduced-motion`, transcripciones y contenido accesible; las fórmulas no dependen exclusivamente del SVG.
+- Antes de imponer nuevas librerías, consultar `references/VECTOR_INK_AND_CLOCK.md`.
+
 
 Tu trabajo es convertir un procedimiento académico en una **experiencia de aprendizaje reproducible, verificable e interactiva**. La experiencia ha de mostrar una *estrategia explícita de resolución*, no simular acceso a los pensamientos privados de quien aprende.
 
@@ -236,3 +247,7 @@ Los motores de dominio siguen siendo la fuente única de verdad. No inferir efec
 **No instales Motion, GSAP, KaTeX ni otras bibliotecas de forma automática.** Consulta primero el contexto técnico: solo añade bibliotecas cuando cubran una necesidad (ecuaciones LaTeX, SVG avanzado, pluma vectorial) y documenta licencia, tamaño, fallback, integridad, accesibilidad y funcionamiento offline.
 
 En HTML ya existente, respetar el layout anfitrión; jamás imponer animaciones continuas fuera del cursor de aprendizaje. Los cambios de velocidad, pausa y seek no pueden filtrar futuros resultados.
+
+## Integración y animación más fluida v0.11
+
+Consulta `references/VECTOR_INK_AND_CLOCK.md` y genera un ejemplo con `npm run build:fluent`. El módulo `CLFVectorInk` aporta glifos SVG originales, y CLFMotion sincroniza los recursos modulares. El reproductor heredado `runtime/player.js` continúa como implementación alternativa sin rAF hasta una migración posterior.

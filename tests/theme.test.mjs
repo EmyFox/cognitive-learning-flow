@@ -18,7 +18,7 @@ const setup=()=>{
 test('school notebook is the default for any new kit resource',()=>{
  const kit=setup();
  assert.equal(kit.defaultTheme,'school-notebook');
- assert.equal(kit.version,'0.8.0');
+ assert.equal(kit.version,'0.11.0');
  assert.deepEqual(Array.from(kit.themes),['school-notebook','neutral']);
  const controller=kit.create(lesson);
  assert.equal(controller.getState().theme,'school-notebook');

@@ -21,3 +21,4 @@ jobs:
       - run: npm run build:operations:resources
       - run: npm run validate:school
       - run: npm run build:school
+      - run: npm run build:fluent

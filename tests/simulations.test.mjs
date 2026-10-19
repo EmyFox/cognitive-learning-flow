@@ -142,7 +142,7 @@ test('legacy lessons continue to render without simulations runtime injected',()
 test('resource export includes simulation runtime and independent mount types',()=>{
   const dir=mkdtempSync(join(tmpdir(),'clf-sim-'));
   const manifest=resources(lesson,dir).manifest;
-  assert.equal(manifest.version,'0.8.0');
+  assert.equal(manifest.version,'0.11.0');
   assert.ok(manifest.resourceTypes.includes('simulation'));
   assert.ok(manifest.resourceTypes.includes('sensitivity'));
   assert.ok(readFileSync(join(dir,'clf-simulations.js'),'utf8').includes('CLFSim'));

@@ -39,6 +39,9 @@ Para un contenido existente que incluya un marcador de montaje:
 <div id="clf-school-mount"></div>
 <script src="/lib/clf-core.js"></script>
 <script src="/lib/clf-line-balancing.js"></script>
+<script src="/lib/clf-ink-choreography.js"></script>
+<script src="/lib/clf-motion.js"></script>
+<script src="/lib/clf-vector-ink.js"></script>
 <script src="/lib/clf-school-notebook.js"></script>
 <script>
   const notebook = CLFSchoolNotebook.mount(
@@ -51,7 +54,7 @@ Para un contenido existente que incluya un marcador de montaje:
 </script>
 ```
 
-El HTML autónomo generado incorpora los tres scripts y la lección inline. El usuario escoge el lugar del recurso; CSS encapsulado. La versión 0.7 es un **recurso adicional** y no reemplaza el recurso `notebook` existente de `CLFKit`.
+El HTML autónomo generado incorpora todos los scripts necesarios y la lección inline. El usuario escoge el lugar del recurso; CSS encapsulado. La versión 0.7 es un **recurso adicional** y no reemplaza el recurso `notebook` existente de `CLFKit`.
 
 ## Accesibilidad y compatibilidad
 
@@ -61,3 +64,7 @@ El HTML autónomo generado incorpora los tres scripts y la lección inline. El u
 - No cargar CDNs, imágenes remotas, fuentes remotas ni datos en redes externas.
 - Un HTML autónomo revela el solucionario en su código: no usarlo para exámenes supervisados de alto impacto.
 - Probar siempre el caso original, variantes de demanda, casos inválidos, reproducir/pausar, antes/después, práctica y teléfono de 375/390 px.
+
+## Actualización v0.11
+
+El SVG de escritura vectorial se incluye con `runtime/vector-ink.js` y se monta sin modificar el HTML anfitrión. Las ecuaciones muestran texto accesible y trazos según los eventos `equation` del controlador; el reloj compartido proviene de `runtime/motion-clock.js`. El exportador empaqueta todos los módulos offline en el orden necesario.
