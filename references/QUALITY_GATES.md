@@ -17,6 +17,14 @@
 - [ ] El modo evaluación no recibe resultados de la demostración anterior.
 - [ ] Ejercicio de transferencia nuevo tras la demostración.
 
+## Visualización semántica (v0.5)
+
+- [ ] Los valores futuros permanecen ocultos hasta el evento que los justifica.
+- [ ] Cada punto visualizado tiene fuente, unidades y foco verificable.
+- [ ] El seek restaura cantidad revelada y foco, sin filtrar respuestas en guía/evaluación.
+- [ ] Se muestran textos equivalentes para interpretar los datos sin SVG.
+- [ ] El proyecto anfitrión conserva su CSS/layout y puede registrar visualizadores especializados.
+
 ## Animación
 
 - [ ] Reproducir, pausar, velocidad, previo, siguiente, reiniciar y seek verdaderamente funcionales.

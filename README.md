@@ -149,3 +149,40 @@ npm run build:example
 La API `CLFKit.create(lesson)` expone `mount(tipo, host)`, `setMode`, `seekSceneId`, `connectWorkflow`, `onChange`, `play`, `pause`, `destroy`, además de acciones guiadas y evaluación. Cada recurso usa Shadow DOM, sin CSS global. La integración automática preserva el archivo fuente y requiere un destino separado; `--force` permite reemplazar solamente la salida generada.
 
 Consulta [referencias de integración](references/EMBEDDING.md) y [el ejemplo de web anfitriona](examples/existing-page.html). Aún no se ha hecho una auditoría formal WCAG ni un estudio de eficacia didáctica.
+
+## v0.5 · Visualizaciones sincronizadas sin imponer diseño
+
+**Ya no es solo PERT/CPM.** Se incorpora un reproductor modular basado en datos para:
+
+- `bar`: barras y eje numérico, incluyendo valores negativos;
+- `line`: serie temporal animada, puntos focalizados y rótulos;
+- `process`: secuencia de etapas de transformación;
+- renderizadores externos registrados con `CLFKit.registerVisualization('mi-grafico', fn)`.
+
+Las visualizaciones no se muestran completas por defecto: **cada acción `visualize` decide cuánto revelar** y qué puntos resaltar con el mismo cursor del cuaderno, la calculadora y el razonamiento. `seek`, `pause` y el cambio de modo reconstruyen el estado. Evaluación no revela visualizaciones trabajadas.
+
+### Ejecutar ambos casos
+
+```sh
+npm test
+npm run validate:example
+npm run validate:forecast
+npm run build:forecast:resources
+npm run build:forecast:integrated
+```
+
+Después abre `dist/forecast-integrated.html`: es una página anfitriona de ejemplo con CSS propio y recursos CLF embebidos. También se puede usar solo `visualization` sin calculadora ni cuaderno, o montar otros recursos en otro orden.
+
+### API de ejemplo
+
+```js
+const app = CLFKit.create(CLF_RESOURCE_LESSON);
+app.mount('visualization', '#mi-grafica');
+app.mount('reasoning', '#razonamiento');
+app.mount('notebook', '#papel');
+app.onCue(cue => console.log(cue.kind, cue.visualization));
+```
+
+Consulta [Gramática visual](references/VISUAL_GRAMMAR.md) y [Embebido](references/EMBEDDING.md).
+
+**Garantías y límites:** el validador prueba matemáticamente el promedio móvil simple del segundo ejemplo y el caso PERT del primero, pero no prueba cualquier fórmula introducida arbitrariamente por un autor. Los gráficos integrados solo cubren `bar`, `line` y `process`; exportaciones HTML de un único archivo no constituyen exámenes seguros contra inspección del código. Quedan pendientes accesibilidad formal y pruebas con estudiantes.

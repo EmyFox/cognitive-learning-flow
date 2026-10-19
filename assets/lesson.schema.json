@@ -168,7 +168,8 @@
                     "diagram",
                     "highlight",
                     "question",
-                    "reveal"
+                    "reveal",
+                    "visualize"
                   ]
                 },
                 "text": {
@@ -204,8 +205,7 @@
                   "type": "array",
                   "items": {
                     "type": "string"
-                  },
-                  "uniqueItems": true
+                  }
                 },
                 "animation": {
                   "type": "object",
@@ -224,6 +224,13 @@
                       ]
                     }
                   }
+                },
+                "visualizationId": {
+                  "type": "string"
+                },
+                "reveal": {
+                  "type": "integer",
+                  "minimum": 0
                 }
               }
             }
@@ -315,6 +322,59 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "visualizations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "kind",
+          "points"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
       }
     }
   }

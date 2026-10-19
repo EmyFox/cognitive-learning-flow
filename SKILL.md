@@ -20,6 +20,19 @@ Tu trabajo es convertir un procedimiento académico en una **experiencia de apre
 - La selección de recursos depende del concepto: una calculadora innecesaria no debe imponerse.
 - Consulta `references/EMBEDDING.md` antes de integrar con código preexistente.
 
+## Visualizaciones por dominio v0.5 (obligatorio cuando aporte comprensión)
+
+Antes de crear recursos, elige una **gramática visual acorde al dato**: `bar` para comparaciones discretas, `line` para evolución temporal, `process` para transformaciones y `diagram` para dependencias de una red PERT.
+
+1. Declara `lesson.visualizations[]`: `id`, `kind`, `title`, `unit` opcional y `points[]` con `id`, `label` y `value` o `detail`.
+2. Crea acciones `type: "visualize"` con `visualizationId`, `reveal` y `focus` para revelar **solo** los puntos ya justificados; `reveal` se interpreta como número de puntos iniciales visibles.
+3. Vincula **cada cambio visual** a una acción semántica (`why`, `callout`, `focus`) y una comprobación matemática. No incluyas datos futuros como observaciones históricas.
+4. Usa `controller.mount('visualization', '#mi-contenedor')` si hay sitio existente. No sustituyas su CSS ni layout.
+5. Si necesitas un gráfico especializado, utiliza `CLFKit.registerVisualization(kind, renderer)` con un contrato documentado en `references/VISUAL_GRAMMAR.md`.
+6. Valida tanto la verdad matemática como el *orden del revelado* y las versiones `snapshot` tras pausa/seek. Revisa el ejemplo `examples/forecast-moving-average.lesson.json`.
+
+**Regla cognitiva:** los elementos visuales no preceden a las decisiones de solución; las ilustran. Una animación describe operaciones externas verificables, no pensamientos privados.
+
 ## Resultado esperado
 
 Entregar un laboratorio HTML que permita al estudiante:
@@ -76,7 +89,7 @@ Usar `assets/lesson.schema.json` o su descripción en `references/ARCHITECTURE.m
 - `assessment.items[]`: opciones, respuesta y explicación por distractor.
 - `sourceNotes[]`: procedencia, licencias y alcance de fórmulas.
 
-Acciones normalizadas: `write`, `calculator`, `diagram`, `highlight`, `question`, `reveal`.
+Acciones normalizadas: `write`, `calculator`, `diagram`, `highlight`, `question`, `reveal`, `visualize`.
 
 Los datos y resultados tienen que concordar en todos los modos y medios. La representación matemática, no el diseño, manda.
 
@@ -105,7 +118,7 @@ Leer según la tarea:
 - `references/QUALITY_GATES.md`: aceptación y pruebas.
 - `examples/pert-cpm.lesson.json`: caso PERT/CPM verificable.
 
-## Generador HTML reutilizable v0.2
+## Generador HTML reutilizable v0.2 (modo legado); kit v0.5 para integrar
 
 Para obtener un archivo autónomo a partir de un JSON de lección validado:
 
@@ -142,3 +155,14 @@ node scripts/validate-lesson.mjs examples/pert-cpm.lesson.json
 - No declarar el laboratorio terminado sin reconocer funciones pendientes o pruebas no realizadas.
 
 **Definición de éxito:** después de observar la solución, el estudiante puede justificar decisiones, detectar errores y resolver un problema nuevo con menos ayuda.
+
+## API v0.5 para páginas preexistentes
+
+```js
+const app = CLFKit.create(lesson);
+app.mount('visualization', document.querySelector('#grafico'));
+app.mount('notebook', document.querySelector('#apuntes'));
+app.onCue(cue => sincronizarMisElementos(cue));
+```
+
+No introducir componentes que el usuario no pida. Para gráficos multi-dominio usar `build:resources` o `build:forecast:integrated`; el antiguo `build:html` mantiene un player específico y **no** incorpora el recurso `visualization`. Consulta `references/VISUAL_GRAMMAR.md`.

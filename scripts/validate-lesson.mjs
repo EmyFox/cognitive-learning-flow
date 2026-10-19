@@ -121,12 +121,37 @@ export function validateLesson(lesson) {
     insist(lesson[key]!==undefined,`Campo faltante: ${key}`);
   insist(Array.isArray(lesson.scenes)&&lesson.scenes.length>=3,'Se requieren al menos 3 escenas');
   insist(Array.isArray(lesson.assessment.items)&&lesson.assessment.items.length>0,'Faltan reactivos');
-  const names=new Set(),allowed=new Set(['write','calculator','highlight','diagram','question','reveal']);
+  const visualizations=new Map();
+  if(lesson.visualizations!==undefined){
+    insist(Array.isArray(lesson.visualizations),'visualizations debe ser arreglo');
+    for(const v of lesson.visualizations){
+      insist(v&&typeof v.id==='string'&&v.id.trim()&&!visualizations.has(v.id),'Visualización duplicada o sin ID');
+      insist(['bar','line','process'].includes(v.kind)||/^[a-z][a-z0-9-]{1,40}$/.test(v.kind),'Renderer no válido: '+v.id);
+      insist(typeof v.title==='string'&&v.title.trim(),'Título de visualización vacío');
+      if(v.note!==undefined)insist(typeof v.note==='string'&&v.note.trim(),'Nota de visualización vacía');
+      insist(Array.isArray(v.points)&&v.points.length&&v.points.length<=100,'Se requieren 1-100 puntos');
+      const ids=new Set();
+      for(const p of v.points){
+        insist(p&&typeof p.id==='string'&&p.id.trim()&&!ids.has(p.id),'Punto inválido/repetido en '+v.id);
+        ids.add(p.id);insist(typeof p.label==='string'&&p.label.trim(),'Etiqueta vacía '+v.id);
+        if(['bar','line'].includes(v.kind))insist(typeof p.value==='number'&&Number.isFinite(p.value),'Dato numérico no finito en '+v.id);
+      }
+      visualizations.set(v.id,v);
+    }
+  }
+  const names=new Set(),allowed=new Set(['write','calculator','highlight','diagram','question','reveal','visualize']);
   for(const scene of lesson.scenes) {
     insist(scene.id && !names.has(scene.id),`Escena repetida o sin id: ${scene.id}`);names.add(scene.id);
     insist(scene.phase && scene.goal && scene.rationale && Array.isArray(scene.actions)&&scene.actions.length,`Escena incompleta: ${scene.id}`);
     for(const action of scene.actions){
       insist(allowed.has(action.type),`Tipo de acción inválido: ${action.type}`);
+      if(action.type==='visualize'){
+        insist(typeof action.visualizationId==='string'&&visualizations.has(action.visualizationId),`Visualización no encontrada: ${scene.id}`);
+        const v=visualizations.get(action.visualizationId);
+        insist(Number.isInteger(action.reveal)&&action.reveal>=0&&action.reveal<=v.points.length,`Cantidad revelada inválida: ${scene.id}`);
+        const ids=new Set(v.points.slice(0,action.reveal).map(p=>p.id));
+        insist(Array.isArray(action.focus)&&action.focus.every(id=>ids.has(id)),`Foco fuera de datos revelados: ${scene.id}`);
+      }
       if(action.why!==undefined) insist(typeof action.why==='string'&&action.why.trim(),`Por qué vacío: ${scene.id}`);
       if(action.callout!==undefined) insist(typeof action.callout==='string'&&action.callout.trim(),`Narración vacía: ${scene.id}`);
       if(action.focus!==undefined) insist(Array.isArray(action.focus)&&action.focus.every(t=>typeof t==='string')&&new Set(action.focus).size===action.focus.length,`Foco inválido: ${scene.id}`);
@@ -149,6 +174,14 @@ export function validateLesson(lesson) {
     const ids=item.options.map(o=>o.id);
     insist(new Set(ids).size===ids.length && ids.includes(item.correctOptionId),`Respuesta inválida: ${item.id}`);
     insist(item.explanation && item.options.every(o=>o.feedback),`Falta feedback: ${item.id}`);
+  }
+  if(lesson.problem.series){
+    const values=lesson.problem.series;
+    insist(Array.isArray(values)&&values.length>=2&&values.every(Number.isFinite),'Serie de pronóstico inválida');
+    const k=lesson.problem.window;
+    insist(Number.isInteger(k)&&k>=1&&k<=values.length,'Ventana de pronóstico inválida');
+    const forecast=values.slice(-k).reduce((sum,x)=>sum+x,0)/k;
+    insist(near(forecast,lesson.groundTruth.forecast,1e-5),`Pronóstico incorrecto: ${forecast}`);
   }
   if(lesson.problem.activities){
     const result=solvePert(lesson.problem.activities);

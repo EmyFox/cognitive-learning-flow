@@ -1,4 +1,4 @@
-/* Cognitive Learning Flow v0.2 — universal deterministic timeline and safe arithmetic. */
+/* Cognitive Learning Flow v0.5 — universal deterministic timeline and safe arithmetic. */
 (function (root) {
   'use strict';
   function assert(ok, message) { if (!ok) throw new Error(message); }
@@ -65,6 +65,8 @@
           const keys = action.keys || (action.expression.replace(/\*/g,'×').replace(/\//g,'÷').split('').concat('='));
           for (const key of keys) events.push({type:'key', si, ai, key});
           events.push({type:'calcDone', si, ai, value:calculate(action.expression)});
+        } else if (action.type === 'visualize') {
+          events.push({type:'visualize', si, ai, visualizationId:action.visualizationId, reveal:action.reveal, focus:action.focus || []});
         } else if (action.type === 'highlight') {
           events.push({type:'highlight', si, targets:action.target || []});
         } else if (action.type === 'diagram') {
@@ -80,7 +82,7 @@
     return {events, ends};
   }
   function snapshot(lesson, compiled, cursor) {
-    const state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1};
+    const state={sceneIndex:0, lines:[], calculator:'0', lastKey:'', highlights:[], diagram:false, diagramText:'', question:'', reveals:[], cue:null, actionType:null, actionIndex:-1, visualization:null};
     const limit=Math.max(0,Math.min(compiled.events.length,Math.trunc(cursor)));
     for(let i=0;i<limit;i++) {
       const e=compiled.events[i];
@@ -92,6 +94,7 @@
       else if(e.type==='key') {state.lastKey=e.key; if(e.key!=='=')state.calculator+=e.key;}
       else if(e.type==='calcDone') {state.calculator=format(e.value);state.lastKey='=';}
       else if(e.type==='highlight') state.highlights=e.targets.slice();
+      else if(e.type==='visualize') state.visualization={id:e.visualizationId,reveal:e.reveal,focus:e.focus.slice()};
       else if(e.type==='diagram') {state.diagram=true;state.diagramText=e.text;}
       else if(e.type==='question')state.question=e.text;
       else if(e.type==='reveal')state.reveals.push(e.text);
@@ -111,7 +114,7 @@
     const scene=lesson.scenes[state.sceneIndex];
     const cue=state.cue;
     const action=cue?scene.actions[cue.actionIndex]:null;
-    const map={write:['Anotar','write'],calculator:['Calcular','calculate'],highlight:['Relacionar','focus'],diagram:['Representar','draw'],question:['Predecir','predict'],reveal:['Comprobar','verify']};
+    const map={write:['Anotar','write'],calculator:['Calcular','calculate'],highlight:['Relacionar','focus'],diagram:['Representar','draw'],question:['Predecir','predict'],reveal:['Comprobar','verify'],visualize:['Visualizar','visualize']};
     const [verb,kind]=action?(map[action.type]||['Examinar','focus']):['Comprender','orient'];
     let content=action?(action.callout||action.text||action.expression||''):scene.goal;
     const targets=action?(action.focus||action.target||[]):[];
@@ -132,7 +135,7 @@
     return Object.freeze({id,sceneIndex:state.sceneIndex,actionIndex:cue?.actionIndex??-1,
       phase:scene.phase||'understand',kind:phase,verb,goal:scene.goal,reason,content,
       targets:Array.isArray(targets)?targets.slice():[],expression,verified,
-      currentKey:state.lastKey,notes,progress:Math.max(0,Math.min(1,cursor/Math.max(1,compiled.events.length)))});
+      currentKey:state.lastKey,visualization:state.visualization,notes,progress:Math.max(0,Math.min(1,cursor/Math.max(1,compiled.events.length)))});
   }
   root.CLFCore={calculate,format,compile,snapshot,checkNumeric,choreography};
 })(globalThis);

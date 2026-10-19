@@ -80,3 +80,19 @@ El paquete incluye assets JS/JSON y un `manifest.json` con los recursos disponib
 - No introducir HTML dinámico con `innerHTML` desde contenido educativo. Todo texto de escenas entra mediante `textContent`.
 - Cada contenedor es elegido explícitamente. Destruir controlador cancela temporizadores, eventos de workflow y montajes.
 - El CSS dentro de Shadow DOM es aislado, aunque las propiedades custom CSS heredables se pueden usar para adaptar colores y tipografía.
+
+## Componentes visuales independientes (v0.5)
+
+Si tu sitio ya tiene su propia jerarquía visual, agrega únicamente:
+
+```html
+<section id="mi-grafica"></section>
+<script>
+const clf = CLFKit.create(lesson);
+clf.mount('visualization', '#mi-grafica');
+// La app anfitriona puede saltar a una acción después de su propio evento.
+clf.seekAction('05-verificar', 1, 'end');
+</script>
+```
+
+El componente usa Shadow DOM, mantiene el mismo cursor que los demás y muestra una transcripción accesible de los puntos revelados. No carga hojas de estilo globales. El texto y los datos entran por `textContent`/SVG text, no `innerHTML`. Véase `VISUAL_GRAMMAR.md`.

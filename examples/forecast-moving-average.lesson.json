@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "0.1",
+  "id": "pronosticos-promedio-movil",
+  "title": "Pronósticos de demanda · Promedio móvil de 3 meses",
+  "domain": "ingenieria-industrial",
+  "objectives": [
+    "Identificar tres observaciones más recientes.",
+    "Aplicar un promedio móvil de tamaño tres.",
+    "Interpretar un pronóstico como estimación, no como dato observado."
+  ],
+  "problem": {
+    "statement": "Un almacén registró demanda mensual de 96, 108, 114, 126 y 132 unidades de enero a mayo. Estima la demanda de junio mediante un promedio móvil simple de tres meses.",
+    "units": "unidades",
+    "series": [
+      96,
+      108,
+      114,
+      126,
+      132
+    ],
+    "window": 3
+  },
+  "groundTruth": {
+    "forecast": 124
+  },
+  "visualizations": [
+    {
+      "id": "historico-barras",
+      "title": "Historial · datos realmente observados",
+      "kind": "bar",
+      "unit": "unidades",
+      "points": [
+        {
+          "id": "m1",
+          "label": "Ene",
+          "value": 96
+        },
+        {
+          "id": "m2",
+          "label": "Feb",
+          "value": 108
+        },
+        {
+          "id": "m3",
+          "label": "Mar",
+          "value": 114
+        },
+        {
+          "id": "m4",
+          "label": "Abr",
+          "value": 126
+        },
+        {
+          "id": "m5",
+          "label": "May",
+          "value": 132
+        }
+      ]
+    },
+    {
+      "id": "tendencia",
+      "title": "Tendencia mensual y pronóstico",
+      "kind": "line",
+      "unit": "unidades",
+      "points": [
+        {
+          "id": "m1",
+          "label": "Ene",
+          "value": 96
+        },
+        {
+          "id": "m2",
+          "label": "Feb",
+          "value": 108
+        },
+        {
+          "id": "m3",
+          "label": "Mar",
+          "value": 114
+        },
+        {
+          "id": "m4",
+          "label": "Abr",
+          "value": 126
+        },
+        {
+          "id": "m5",
+          "label": "May",
+          "value": 132
+        },
+        {
+          "id": "m6",
+          "label": "Jun*",
+          "value": 124
+        }
+      ],
+      "note": "Jun* es un pronóstico, no una observación de demanda real."
+    },
+    {
+      "id": "metodo",
+      "title": "Cadena de resolución",
+      "kind": "process",
+      "points": [
+        {
+          "id": "select",
+          "label": "Seleccionar",
+          "detail": "Mar, Abr y May"
+        },
+        {
+          "id": "sum",
+          "label": "Sumar",
+          "detail": "114 + 126 + 132"
+        },
+        {
+          "id": "divide",
+          "label": "Promediar",
+          "detail": "Dividir entre 3"
+        },
+        {
+          "id": "interpret",
+          "label": "Interpretar",
+          "detail": "Junio: 124 unidades"
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "01-identificar",
+      "phase": "identify",
+      "goal": "Identificar los datos de origen",
+      "rationale": "El pronóstico no puede tratar los meses futuros como observaciones reales.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Demanda observada: 96, 108, 114, 126 y 132 unidades."
+        },
+        {
+          "type": "visualize",
+          "visualizationId": "historico-barras",
+          "reveal": 5,
+          "focus": [
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "why": "La selección debe usar los tres meses anteriores al que deseamos pronosticar."
+        }
+      ]
+    },
+    {
+      "id": "02-representar",
+      "phase": "represent",
+      "goal": "Comparar la tendencia histórica",
+      "rationale": "El gráfico revela que la demanda cambia; un promedio móvil suaviza el comportamiento.",
+      "actions": [
+        {
+          "type": "visualize",
+          "visualizationId": "tendencia",
+          "reveal": 5,
+          "focus": [
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "why": "Todavía no existe una observación para junio."
+        },
+        {
+          "type": "write",
+          "text": "Ventana: tres observaciones más recientes: Mar=114, Abr=126, May=132."
+        }
+      ]
+    },
+    {
+      "id": "03-planear",
+      "phase": "plan",
+      "goal": "Seleccionar el método correcto",
+      "rationale": "El promedio móvil de orden tres toma la suma de las tres últimas observaciones y divide entre tres.",
+      "actions": [
+        {
+          "type": "visualize",
+          "visualizationId": "metodo",
+          "reveal": 2,
+          "focus": [
+            "select",
+            "sum"
+          ]
+        },
+        {
+          "type": "write",
+          "text": "F(junio) = (Mar + Abr + May) / 3"
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuántos meses observados utiliza esta fórmula?",
+        "answer": 3,
+        "tolerance": 0,
+        "hint": "El método se llama promedio móvil de 3 meses.",
+        "feedback": "Correcto: se emplean tres observaciones, no todas."
+      }
+    },
+    {
+      "id": "04-calcular",
+      "phase": "execute",
+      "goal": "Sustituir y calcular",
+      "rationale": "Una vez elegidos los datos pertinentes, se realiza una única operación verificable.",
+      "actions": [
+        {
+          "type": "calculator",
+          "expression": "(114+126+132)/3",
+          "expected": 124,
+          "why": "Se promedian las tres demandas seleccionadas."
+        },
+        {
+          "type": "visualize",
+          "visualizationId": "metodo",
+          "reveal": 3,
+          "focus": [
+            "divide"
+          ]
+        },
+        {
+          "type": "write",
+          "text": "F(junio) = (114+126+132)/3 = 124 unidades."
+        }
+      ],
+      "checkpoint": {
+        "prompt": "¿Cuál es el pronóstico para junio, en unidades?",
+        "answer": 124,
+        "tolerance": 0.001,
+        "hint": "Primero suma 114+126+132 y luego divide entre 3.",
+        "feedback": "124 unidades; el valor es una estimación, no una medición de junio."
+      }
+    },
+    {
+      "id": "05-verificar",
+      "phase": "verify",
+      "goal": "Comprobar el promedio obtenido",
+      "rationale": "124 se encuentra entre 114 y 132, como corresponde a un promedio de estos datos.",
+      "actions": [
+        {
+          "type": "write",
+          "text": "Verificación: 114 ≤ 124 ≤ 132; coherente con los tres datos."
+        },
+        {
+          "type": "visualize",
+          "visualizationId": "tendencia",
+          "reveal": 6,
+          "focus": [
+            "m6"
+          ],
+          "why": "Solo ahora aparece el punto pronosticado para junio."
+        }
+      ]
+    },
+    {
+      "id": "06-interpretar",
+      "phase": "interpret",
+      "goal": "Explicar el significado operativo",
+      "rationale": "La estimación ayuda a planear stock, pero no garantiza la demanda real.",
+      "actions": [
+        {
+          "type": "visualize",
+          "visualizationId": "metodo",
+          "reveal": 4,
+          "focus": [
+            "interpret"
+          ]
+        },
+        {
+          "type": "write",
+          "text": "Pronóstico ≈ 124 unidades para junio; revisar ante cambios bruscos de demanda."
+        }
+      ]
+    },
+    {
+      "id": "07-transferir",
+      "phase": "transfer",
+      "goal": "Reutilizar el método con otra ventana",
+      "rationale": "Resolver un caso nuevo demuestra que se comprendió el criterio de selección.",
+      "actions": [
+        {
+          "type": "question",
+          "text": "¿Qué datos usarías para un promedio móvil de dos meses?"
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "items": [
+      {
+        "id": "f1",
+        "stem": "¿Qué tres meses se usan para pronosticar junio con promedio móvil 3?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Enero, febrero y marzo",
+            "feedback": "No son los tres más recientes."
+          },
+          {
+            "id": "B",
+            "text": "Marzo, abril y mayo",
+            "feedback": "Correcto: la ventana inmediatamente anterior a junio."
+          },
+          {
+            "id": "C",
+            "text": "Abril, mayo y junio",
+            "feedback": "Junio todavía no tiene demanda observada."
+          }
+        ],
+        "correctOptionId": "B",
+        "explanation": "Se seleccionan marzo, abril y mayo."
+      },
+      {
+        "id": "f2",
+        "stem": "¿Cuál es el resultado del pronóstico de junio?",
+        "options": [
+          {
+            "id": "A",
+            "text": "124 unidades",
+            "feedback": "Correcto: (114+126+132)/3=124."
+          },
+          {
+            "id": "B",
+            "text": "132 unidades",
+            "feedback": "Es el último dato histórico, no el promedio."
+          },
+          {
+            "id": "C",
+            "text": "120 unidades",
+            "feedback": "No coincide con la suma y división de los tres meses."
+          }
+        ],
+        "correctOptionId": "A",
+        "explanation": "El pronóstico es 124 unidades, no una observación definitiva."
+      },
+      {
+        "id": "f3",
+        "stem": "¿Cómo debe interpretarse el resultado?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Es una demanda garantizada",
+            "feedback": "Los pronósticos tienen incertidumbre."
+          },
+          {
+            "id": "B",
+            "text": "Es el inventario mínimo obligatorio",
+            "feedback": "No se ha modelado inventario de seguridad."
+          },
+          {
+            "id": "C",
+            "text": "Es una estimación para planear",
+            "feedback": "Correcto: es útil para decisiones, no una certeza."
+          }
+        ],
+        "correctOptionId": "C",
+        "explanation": "La estimación de 124 sirve de referencia y puede desviarse de la demanda real."
+      }
+    ]
+  },
+  "sourceNotes": [
+    "Caso didáctico sintético, no reactivo oficial de Ceneval.",
+    "El promedio móvil simple no captura tendencias ni estacionalidad de forma explícita."
+  ]
+}

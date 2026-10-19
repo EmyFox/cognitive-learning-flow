@@ -12,4 +12,7 @@ jobs:
           node-version: '22'
       - run: npm test
       - run: npm run validate:example
+      - run: npm run validate:forecast
       - run: npm run build:example
+      - run: npm run build:forecast:resources
+      - run: npm run build:forecast:integrated
