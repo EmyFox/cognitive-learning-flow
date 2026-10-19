@@ -137,3 +137,17 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Movimiento de glifos basado en trayectorias reales de fuente vectorial, opcional.
 - [ ] Auditoría de accesibilidad WCAG y pruebas de aprendizaje con estudiantes.
 - [ ] Más dominios: EOQ visual, colas multiserver y control estadístico de procesos.
+
+
+## v0.10 · Fluidez perceptiva (implementada en la libreta escolar)
+
+- [x] Reloj de reproducción con `requestAnimationFrame` y control determinista de velocidad y pausa.
+- [x] Estado reversible con checkpoints de eventos, sin recomputar todo el historial.
+- [x] Tinta y fórmulas con nodos persistentes y actualizaciones mínimas.
+- [x] Emociones visuales discretas con WAAPI y cancelación de efectos al detenerse.
+- [x] Pausa automática al ocultar pestaña, y soporte para movimiento reducido.
+- [x] Regresión de lógica y navegador en escritorio y móvil.
+- [ ] Migrar progresivamente el kit modular y los otros simuladores al mismo reloj.
+- [ ] Añadir Playwright al CI como dependencia **solo de desarrollo**.
+- [ ] Instrumentar mediciones de frames y tiempos de respuesta en equipos económicos.
+- [ ] Añadir adaptadores opcionales Motion y KaTeX solo ante casos que los requieran.

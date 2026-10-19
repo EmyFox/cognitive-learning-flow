@@ -1,4 +1,4 @@
-/* CLF v0.9: Shadow DOM school notebook with semantic ink choreography. */
+/* CLF v0.10: smooth, reversible school notebook with semantic ink choreography. */
 (function (root) {
 'use strict';
 const CSS=String.raw`
@@ -6,8 +6,8 @@ const CSS=String.raw`
 .phase-ribbon{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #b5cbd9;background:#eaf3f5;border-radius:10px;margin:0 0 14px;color:#285a84;flex-wrap:wrap;min-height:44px}
 .phase-icon{font-size:17px;color:#dd9b3b}.phase-ribbon #phase-label{font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.1em}.phase-ribbon #phase-action{margin-left:auto;color:#7187a0;font-size:11px}
 .equation-board{background:#fffaf0;border:1px solid #e8d6a6;border-radius:13px;padding:13px 13px 4px;margin:0 0 15px;box-shadow:inset 0 0 0 3px #ffffff9c;overflow:hidden}
-.equation-steps{display:grid;gap:5px;margin:10px 0 2px}.eq-row{display:flex;gap:12px;align-items:center;min-height:34px;border-radius:8px;padding:5px 9px;color:#9ca8b2;opacity:.5;background:#f3f0e8;transition:background .15s,opacity .15s}.eq-row.visible{background:#fffefc;color:#285583;opacity:1}.eq-row.current{background:#fff0bf;color:#203e62;box-shadow:inset 3px 0 0 #dd9b38}.eq-index{font:800 10px/1 ui-monospace,monospace;color:#be8542}.eq-text{font:700 clamp(12px,1.5vw,16px)/1.45 'Segoe Print','Comic Sans MS',cursive;overflow-wrap:anywhere}
-.equation-insight{font:600 12px/1.45 system-ui,sans-serif;color:#647b88;margin:9px 2px 3px} .ink-stroke{display:block;width:100%;height:17px;max-width:320px;overflow:visible;margin-top:2px}.ink-stroke path{transition:stroke-dashoffset .13s linear}
+.equation-steps{display:grid;gap:5px;margin:10px 0 2px}.eq-row{display:flex;gap:12px;align-items:center;min-height:34px;border-radius:8px;padding:5px 9px;color:#9ca8b2;opacity:.5;background:#f3f0e8;transition:background .32s cubic-bezier(.2,.8,.2,1),opacity .32s cubic-bezier(.2,.8,.2,1),transform .32s cubic-bezier(.2,.8,.2,1)}.eq-row.visible{transform:translateY(0);background:#fffefc;color:#285583;opacity:1}.eq-row.current{transform:translateX(2px);background:#fff0bf;color:#203e62;box-shadow:inset 3px 0 0 #dd9b38}.eq-index{font:800 10px/1 ui-monospace,monospace;color:#be8542}.eq-text{font:700 clamp(12px,1.5vw,16px)/1.45 'Segoe Print','Comic Sans MS',cursive;overflow-wrap:anywhere}
+.equation-insight{font:600 12px/1.45 system-ui,sans-serif;color:#647b88;margin:9px 2px 3px} .ink-stroke{display:block;width:100%;height:17px;max-width:320px;overflow:visible;margin-top:2px}.ink-stroke path{transition:stroke-dashoffset .36s cubic-bezier(.22,.8,.3,1)}
 .transfer-lane{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:9px 0 12px;padding:11px;background:#f2f7f7;border:1px dashed #b9cad1;border-radius:12px}.lane-caption{flex:0 0 100%;font-size:10px;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:#69829a}.lane-group{display:flex;align-items:center;gap:4px;background:white;border-radius:8px;border:1px solid #b7d1d6;padding:6px 8px}.lane-group b{font:800 11px ui-monospace;color:#315978;margin-right:2px}.lane-group.pending{opacity:.42}.task-chip{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:6px;background:#ffeab4;color:#885824;border:1px solid #efd18c;font:800 11px ui-monospace,monospace}
 .scrub{width:100%;accent-color:#2f668d;min-height:24px;margin:9px 0;cursor:pointer;touch-action:pan-y}
 .is-playing .station.just-assigned{animation:station-reveal .5s both}
@@ -96,43 +96,58 @@ function buildStages(data,result){
   for (const stage of stages) if(stage.equation) root.CLFInk.verify(stage.equation,root.CLFCore.calculate);
   return stages;
 }
+function initialState(){
+ return {scene:0,lines:[],focus:[],calc:'0',expression:'',key:'',station:0,equationPhase:0,inkProgress:0,inkLength:0,inkCount:0,cue:'',action:''};
+}
+function cloneState(s){return {...s,lines:s.lines.slice(),focus:s.focus.slice()};}
+function applyEvent(state,e){
+ if(e.type==='scene'){state.scene=e.scene;state.focus=e.focus.slice();state.key='';state.equationPhase=0;state.inkProgress=0;state.inkLength=0;state.inkCount=0;state.cue='Identificar';state.action='scene';}
+ else if(e.type==='line'){state.lines.push('');state.inkLength=e.length;state.inkCount=0;state.inkProgress=0;state.action='line';}
+ else if(e.type==='glyph'){state.lines[state.lines.length-1]+=e.ch;state.inkCount++;state.inkProgress=state.inkLength?state.inkCount/state.inkLength:1;state.action='glyph';}
+ else if(e.type==='clear'){state.calc='';state.expression='';state.action='clear';}
+ else if(e.type==='key'){state.key=e.key;state.action='key';state.cue='Calcular';if(e.key!=='='){state.expression+=e.key;state.calc=state.expression;}}
+ else if(e.type==='result'){state.calc=fmt(e.value);state.key='=';state.action='result';state.cue='Comprobar';}
+ else if(e.type==='equation'){state.equationPhase=e.phase;state.cue=['','Modelar','Sustituir','Interpretar'][e.phase];state.action='equation';}
+ else if(e.type==='station'){state.station=e.station;state.cue='Asignar';state.action='station';}
+}
 function compileStages(stages){
-  const events=[],starts=[],ends=[];
-  stages.forEach((stage,i)=>{
-    starts.push(events.length);events.push({type:'scene',scene:i,focus:stage.focus||[]});
-    if(stage.equation)events.push({type:'equation',phase:1,scene:i});
-    for(let li=0;li<stage.lines.length;li++){
-      const line=stage.lines[li];
-      events.push({type:'line',scene:i,length:Array.from(line).length});
-      for(const ch of Array.from(line))events.push({type:'glyph',ch,scene:i});
-      if(li===0&&stage.equation)events.push({type:'equation',phase:2,scene:i});
-    }
-    if(stage.calc){events.push({type:'clear',scene:i});for(const key of [...stage.calc.replaceAll('*','×').replaceAll('/','÷'),'='])events.push({type:'key',key,scene:i});events.push({type:'result',value:stage.value,scene:i});}
-    if(stage.equation)events.push({type:'equation',phase:3,scene:i});
-    if(stage.station)events.push({type:'station',station:stage.station,scene:i});
-    ends.push(events.length);
-  });return {events,starts,ends};
+ const events=[],starts=[],ends=[];
+ stages.forEach((stage,i)=>{
+   starts.push(events.length);events.push({type:'scene',scene:i,focus:stage.focus||[]});
+   if(stage.equation)events.push({type:'equation',phase:1,scene:i});
+   for(let li=0;li<stage.lines.length;li++){
+    const line=stage.lines[li];events.push({type:'line',scene:i,length:Array.from(line).length});
+    for(const ch of Array.from(line))events.push({type:'glyph',ch,scene:i});
+    if(li===0&&stage.equation)events.push({type:'equation',phase:2,scene:i});
+   }
+   if(stage.calc){events.push({type:'clear',scene:i});for(const key of [...stage.calc.replaceAll('*','×').replaceAll('/','÷'),'='])events.push({type:'key',key,scene:i});events.push({type:'result',value:stage.value,scene:i});}
+   if(stage.equation)events.push({type:'equation',phase:3,scene:i});
+   if(stage.station)events.push({type:'station',station:stage.station,scene:i});
+   ends.push(events.length);
+ });
+ // Checkpoint every 64 semantic events. Scrubbing now replays at most 63 events
+ // instead of rescanning the entire history on every glyph.
+ const checkpoints=[{cursor:0,state:initialState()}];const model=initialState();
+ for(let i=0;i<events.length;i++){applyEvent(model,events[i]);if((i+1)%64===0)checkpoints.push({cursor:i+1,state:cloneState(model)});}
+ return {events,starts,ends,checkpoints};
 }
 function snapshot(timeline,cursor){
-  const state={scene:0,lines:[],focus:[],calc:'0',expression:'',key:'',station:0,equationPhase:0,inkProgress:0,inkLength:0,cue:'',action:''};
-  for(let k=0;k<Math.min(cursor,timeline.events.length);k++){
-    const e=timeline.events[k];
-    if(e.type==='scene'){state.scene=e.scene;state.focus=e.focus;state.key='';state.equationPhase=0;state.inkProgress=0;state.inkLength=0;state.cue='Identificar';state.action='scene';}
-    else if(e.type==='line'){state.lines.push('');state.inkLength=e.length;state.inkProgress=0;state.action='line';}
-    else if(e.type==='glyph'){state.lines[state.lines.length-1]+=e.ch;state.inkProgress=state.inkLength?Array.from(state.lines[state.lines.length-1]).length/state.inkLength:1;state.action='glyph';}
-    else if(e.type==='clear'){state.calc='';state.expression='';state.action='clear';}
-    else if(e.type==='key'){state.key=e.key;state.action='key';state.cue='Calcular';if(e.key!=='='){state.expression+=e.key;state.calc=state.expression;}}
-    else if(e.type==='result'){state.calc=fmt(e.value);state.key='=';state.action='result';state.cue='Comprobar';}
-    else if(e.type==='equation'){state.equationPhase=e.phase;state.cue=['','Modelar','Sustituir','Interpretar'][e.phase];state.action='equation';}
-    else if(e.type==='station'){state.station=e.station;state.cue='Asignar';state.action='station';}
-  }return state;
+ const limit=Math.max(0,Math.min(timeline.events.length,Math.trunc(cursor)||0));
+ const checkpoints=timeline.checkpoints;
+ let state=initialState(),start=0;
+ if(Array.isArray(checkpoints)&&checkpoints.length){
+  const i=Math.min(checkpoints.length-1,Math.floor(limit/64));
+  const point=checkpoints[i];if(point&&point.cursor<=limit){state=cloneState(point.state);start=point.cursor;}
+ }
+ for(let k=start;k<limit;k++)applyEvent(state,timeline.events[k]);
+ return state;
 }
 function mount(host,rawLesson){
  if(!host||!host.appendChild)throw Error('Contenedor CLF inexistente');
  const solver=root.CLFLineBalancing;
  if(!solver)throw Error('El motor CLFLineBalancing debe cargarse primero');
- if(!root.CLFInk||!root.CLFCore)throw Error('CLFInk y CLFCore deben cargarse antes de la libreta');
- const data=JSON.parse(JSON.stringify(rawLesson));let demand=data.demand,result,stages,timeline,cursor=0,playing=false,timer=null,speed=1,mode='demo',practiceIndex=0,practiceSolved=false,practiceAttempts=0,practiceHint=false,practiceDraft='',calcManual='',labDemand=demand,broken=false;
+ if(!root.CLFInk||!root.CLFCore||!root.CLFMotion)throw Error('CLFInk, CLFCore y CLFMotion deben cargarse antes de la libreta');
+ const data=JSON.parse(JSON.stringify(rawLesson));let demand=data.demand,result,stages,timeline,cursor=0,playing=false,clock=null,speed=1,mode='demo',practiceIndex=0,practiceSolved=false,practiceAttempts=0,practiceHint=false,practiceDraft='',calcManual='',labDemand=demand,broken=false;
  const reduce=!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion:reduce)').matches);
  const mountpoint=mk('div');const shadow=mountpoint.attachShadow({mode:'open'});
  const st=mk('style');st.textContent=CSS;shadow.append(st);
@@ -156,6 +171,31 @@ function mount(host,rawLesson){
  <div aria-live="polite" id="announcer" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"></div>`;
  shadow.append(main);host.append(mountpoint);
  const $=id=>shadow.getElementById(id);
+ const activeAnimations=new Set();
+ function cancelMotion(){for(const a of activeAnimations){try{a.cancel();}catch{}}activeAnimations.clear();}
+ function pulse(node,keyframes,duration=270){
+  if(reduce||!playing||!node||typeof node.animate!=='function')return;
+  const animation=node.animate(keyframes,{duration,easing:'cubic-bezier(.19,1,.22,1)',fill:'none'});
+  activeAnimations.add(animation);
+  const finish=()=>activeAnimations.delete(animation);
+  animation.addEventListener('finish',finish,{once:true});animation.addEventListener('cancel',finish,{once:true});
+ }
+ const inkNodes=[];let equationSource=null,equationRows=[],priorPhase=-1,priorFocus='';
+ function updateInkLines(lines,showCursor){
+  const holder=$('inklines');let changed=false;
+  while(inkNodes.length>lines.length){inkNodes.pop().remove();changed=true;}
+  for(let i=0;i<lines.length;i++){
+   let row=inkNodes[i];
+   if(!row){row=mk('div','inkline');row.append(document.createTextNode(''));inkNodes.push(row);holder.append(row);changed=true;}
+   const value=lines[i];if(row.firstChild.nodeValue!==value){row.firstChild.nodeValue=value;changed=true;}
+   const emphasis=/=|Σ|CT |η |Nmín|Resultado:/.test(value);row.classList.toggle('emphasis',emphasis);
+  }
+  // The caret is a stable node and never forces all the handwriting to re-mount.
+  let caret=holder.querySelector('.cursor');
+  if(showCursor&&inkNodes.length){if(!caret)caret=mk('span','cursor','');inkNodes.at(-1).append(caret);}
+  else if(caret)caret.remove();
+  if(changed)holder.scrollTop=holder.scrollHeight;
+ }
  const keyButtons=new Map();for(const key of KEYS){const btn=mk('button','key '+('÷×−+'.includes(key)?'op':'')+(key==='='?' equal':''),key);btn.type='button';btn.setAttribute('aria-label',key==='⌫'?'Borrar':key);btn.addEventListener('click',()=>manualKey(key));$('keys').append(btn);keyButtons.set(key,btn);}
  const tasks=data.tasks;
  function layoutNodes(){
@@ -183,38 +223,52 @@ function mount(host,rawLesson){
  }
  function renderEquation(stage,snap){
   const board=$('equation-board'),content=$('equation-steps'),eq=stage.equation;
-  board.hidden=!eq||mode!=='demo';content.replaceChildren();
-  if(!eq||mode!=='demo')return;
-  const projection=root.CLFInk.project(eq,snap.equationPhase);
-  for(const [i,part] of projection.parts.entries()){
-    const row=mk('div','eq-row'+(part.visible?' visible':'')+(part.active?' current':''));
-    row.append(mk('span','eq-index',String(i+1).padStart(2,'0')),mk('span','eq-text',part.visible?part.text:'················'));
-    content.append(row);
+  board.hidden=!eq||mode!=='demo';if(!eq||mode!=='demo')return;
+  if(equationSource!==eq){
+   equationSource=eq;priorPhase=-1;content.replaceChildren();equationRows=[];
+   for(let i=0;i<3;i++){
+    const row=mk('div','eq-row');row.append(mk('span','eq-index',String(i+1).padStart(2,'0')),mk('span','eq-text','················'));
+    content.append(row);equationRows.push(row);
+   }
+   content.append(mk('p','equation-insight',''));
   }
-  if(projection.insight)content.append(mk('p','equation-insight','↳ '+projection.insight));
-  board.dataset.phase=String(snap.equationPhase);
-  board.dataset.active=snap.action;
-  $('ink-underline').setAttribute('stroke-dashoffset',String(root.CLFInk.underline(snap.equationPhase===0?0:snap.equationPhase===1?.33:snap.equationPhase===2?.66:1)));
+  if(priorPhase!==snap.equationPhase){
+   priorPhase=snap.equationPhase;
+   const projection=root.CLFInk.project(eq,snap.equationPhase);
+   for(const [i,part] of projection.parts.entries()){
+    const row=equationRows[i],txt=row.lastChild;const value=part.visible?part.text:'················';
+    if(txt.textContent!==value)txt.textContent=value;
+    row.classList.toggle('visible',part.visible);row.classList.toggle('current',part.active);
+   }
+   const insight=content.lastChild;insight.textContent=projection.insight?'↳ '+projection.insight:'';
+   $('ink-underline').setAttribute('stroke-dashoffset',String(root.CLFInk.underline(snap.equationPhase===0?0:snap.equationPhase===1?.33:snap.equationPhase===2?.66:1)));
+  }
+  board.dataset.phase=String(snap.equationPhase);board.dataset.active=snap.action;
  }
- 
+
  function refreshCalc(snap){const value=(mode==='demo'?snap.calc:calcManual)||'0';$('calc-digits').textContent=value;$('calc-expr').textContent=mode==='demo'?(snap.expression||'Observa la operación…'):(calcManual||'Calculadora manual');for(const [key,node] of keyButtons)node.classList.toggle('flash',mode==='demo'&&key===snap.key);$('calc-caption').textContent=mode==='demo'?'Observa la operación sincronizada con la libreta.':'Puedes usar la calculadora para comprobar tus ideas.';}
  function manualKey(key){if(mode==='demo')return;if(key==='C')calcManual='';else if(key==='⌫')calcManual=calcManual.slice(0,-1);else if(key==='='){try{calcManual=root.CLFCore.format(root.CLFCore.calculate(calcManual));}catch{calcManual='Error';}}else if(calcManual.length<65&&KEYS.includes(key))calcManual+=key;refreshCalc({});}
- function configure(){stationsSignature='';const newResult=solver.solve({...data,demand});result=newResult;stages=buildStages({...data,demand},result);timeline=compileStages(stages);cursor=0;labDemand=demand;const opts=$('stages');opts.replaceChildren();stages.forEach((stage,i)=>{const opt=mk('option',undefined,`${i+1}. ${stage.title}`);opt.value=String(i);opts.append(opt);});$('shift').textContent=data.availableSeconds/3600+' h productivas';$('target').textContent=demand+' piezas';$('numtasks').textContent=data.tasks.length+' tareas';}
- function render(){if(broken)return;const snap=snapshot(timeline,cursor),stage=stages[snap.scene];
+ function configure(){if(clock){clock.destroy();clock=null;}playing=false;stationsSignature='';const newResult=solver.solve({...data,demand});result=newResult;stages=buildStages({...data,demand},result);timeline=compileStages(stages);cursor=0;clock=root.CLFMotion.createClock({events:timeline.events,reduced:reduce,onCursor:(position,event)=>{cursor=position;render(event);},onFrame:({progress,playing:active})=>{const underline=$('ink-underline');if(underline&&active&&shadow.getElementById('equation-board').hidden===false){underline.style.opacity=String(.78+.22*progress);}},onComplete:()=>{playing=false;render();}});clock.setSpeed(speed);labDemand=demand;const opts=$('stages');opts.replaceChildren();stages.forEach((stage,i)=>{const opt=mk('option',undefined,`${i+1}. ${stage.title}`);opt.value=String(i);opts.append(opt);});$('shift').textContent=data.availableSeconds/3600+' h productivas';$('target').textContent=demand+' piezas';$('numtasks').textContent=data.tasks.length+' tareas';}
+ function render(event){if(broken)return;const snap=snapshot(timeline,cursor),stage=stages[snap.scene];
    $('step-kicker').textContent=stage.label;$('step-title').textContent=stage.title;$('reason-text').textContent=stage.why;
    $('phase-label').textContent=snap.cue||'Identificar';
    $('phase-action').textContent=root.CLFInk.phaseDescription(snap.cue);
    renderEquation(stage,snap);
    main.classList.toggle('is-playing',playing);
-   const lines=$('inklines');const oldText=lines.textContent;lines.replaceChildren();snap.lines.forEach((text,i)=>{const row=mk('div','inkline'+(/=|Σ|CT |η |Nmín|Resultado:/.test(text)?' emphasis':''),text);lines.append(row);});if(mode==='demo'&&playing&&snap.lines.length){const c=mk('span','cursor','');lines.lastChild?.append(c);}if(oldText!==lines.textContent)lines.scrollTop=lines.scrollHeight;
-   graph(snap.focus);drawStations(snap.station,playing&&snap.action==='station');refreshCalc(snap);
+   updateInkLines(snap.lines,mode==='demo'&&playing);
+   const focusSignature=(snap.focus||[]).join('|');if(priorFocus!==focusSignature||!$('graph').firstChild){graph(snap.focus);priorFocus=focusSignature;}
+   drawStations(snap.station,playing&&snap.action==='station');refreshCalc(snap);
+   if(event&&playing&&!reduce){
+    if(event.type==='key'){pulse(keyButtons.get(event.key),[{transform:'translateY(0)',filter:'brightness(1)'},{transform:'translateY(2px)',filter:'brightness(1.16)'},{transform:'translateY(0)',filter:'brightness(1)'}],145);}
+    else if(event.type==='equation'){pulse(equationRows[event.phase-1],[{opacity:.7,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],300);}
+    else if(event.type==='station'){pulse($('stations').querySelectorAll('.station')[event.station-1],[{opacity:.45,transform:'translateY(10px) scale(.98)'},{opacity:1,transform:'translateY(0) scale(1)'}],430);}
+   }
    $('scrub').max=String(timeline.events.length);$('scrub').value=String(cursor);$('play').textContent=playing?'Ⅱ Pausar':'▶ Reproducir';$('prev').disabled=cursor<=0;$('next').disabled=cursor>=timeline.events.length;$('stages').value=String(snap.scene);$('fill').style.width=(100*cursor/Math.max(1,timeline.events.length))+'%';$('count').textContent=`Etapa ${snap.scene+1} de ${stages.length}`;$('pct').textContent=Math.round(100*cursor/Math.max(1,timeline.events.length))+'%';
  }
- function stop(){playing=false;if(timer!==null){clearTimeout(timer);timer=null;}}
- function tick(){if(!playing)return;if(cursor>=timeline.events.length){stop();render();return;}const e=timeline.events[cursor++];render();const wait=reduce?40:e.type==='glyph'?37:e.type==='key'?160:220;timer=setTimeout(tick,wait/speed);}
- function play(){if(mode!=='demo')return;if(cursor>=timeline.events.length)cursor=0;stop();playing=true;render();tick();}
+ function stop(){playing=false;clock?.pause();cancelMotion();}
+ function play(){if(mode!=='demo')return;stop();playing=true;clock.play();cursor=clock.getState().cursor;render();}
  function pause(){stop();if(mode==='demo')render();}
- function seek(to){stop();cursor=Math.max(0,Math.min(timeline.events.length,Math.trunc(to)||0));if(mode==='demo'){render();$('announcer').textContent='Etapa '+(snapshot(timeline,cursor).scene+1)+': '+stages[snapshot(timeline,cursor).scene].title;}}
+ function seek(to){stop();clock.seek(to);cursor=clock.getState().cursor;if(mode==='demo'){const snap=snapshot(timeline,cursor);$('announcer').textContent='Etapa '+(snap.scene+1)+': '+stages[snap.scene].title;}}
  function seekScene(n){n=Math.max(0,Math.min(stages.length-1,Math.trunc(n)||0));seek(timeline.ends[n]);}
  function changeMode(next){if(!['demo','practice','lab'].includes(next))throw Error('Modo inválido');stop();mode=next;for(const b of shadow.querySelectorAll('[data-tab]')){b.classList.toggle('active',b.dataset.tab===mode);b.setAttribute('aria-pressed',String(b.dataset.tab===mode));}for(const [name,id] of [['demo','demo-body'],['practice','practice-body'],['lab','lab-body']])$(id).hidden=name!==mode;$('controls').hidden=mode!=='demo';$('stations').hidden=mode==='practice';$('graph-scroll').hidden=mode==='practice';$('demand-options').hidden=mode!=='lab';$('count').textContent='';if(next==='demo')render();else if(next==='practice'){practiceIndex=0;practiceSolved=false;practiceAttempts=0;practiceHint=false;practiceDraft='';refreshCalc({});renderPractice();}else{calcManual='';renderLab();}}
  function problems(){return [
@@ -232,10 +286,12 @@ function mount(host,rawLesson){
  function renderLab(){const choices=$('demand-options');choices.replaceChildren();for(const val of [400,480,600]){const btn=mk('button','chip'+(val===demand?' active':''),val+' piezas');btn.addEventListener('click',()=>{demand=val;configure();renderLab();});choices.append(btn);}
    const grid=$('lab-metrics');grid.replaceChildren();for(const [label,value] of [['Ciclo permitido',fmt(result.cycle)+' s'],['Estaciones asignadas',result.stations.length],['Eficiencia',fmt(100*result.efficiency)+' %'],['Ocio por ciclo',fmt(result.idleSeconds)+' s']]){const box=mk('div','metric');box.append(mk('div','smallcap',label),mk('div','num',value));grid.append(box);}graph(data.tasks.map(t=>t.id));drawStations(result.stations.length);refreshCalc({});$('target').textContent=demand+' piezas';}
  for(const b of shadow.querySelectorAll('[data-tab]'))b.addEventListener('click',()=>changeMode(b.dataset.tab));
- $('play').addEventListener('click',()=>playing?pause():play());$('prev').addEventListener('click',()=>seekScene(Math.max(0,snapshot(timeline,cursor).scene-1)));$('next').addEventListener('click',()=>seekScene(Math.min(stages.length-1,snapshot(timeline,cursor).scene+1)));$('restart').addEventListener('click',()=>seek(0));$('scrub').addEventListener('input',()=>seek(Number($('scrub').value)));$('stages').addEventListener('change',()=>seekScene(Number($('stages').value)));$('speed').addEventListener('change',()=>{speed=Number($('speed').value);});
+ $('play').addEventListener('click',()=>playing?pause():play());$('prev').addEventListener('click',()=>seekScene(Math.max(0,snapshot(timeline,cursor).scene-1)));$('next').addEventListener('click',()=>seekScene(Math.min(stages.length-1,snapshot(timeline,cursor).scene+1)));$('restart').addEventListener('click',()=>seek(0));$('scrub').addEventListener('input',()=>seek(Number($('scrub').value)));$('stages').addEventListener('change',()=>seekScene(Number($('stages').value)));$('speed').addEventListener('change',()=>{speed=Number($('speed').value);clock?.setSpeed(speed);});
+ function visibilityPause(){if(document.hidden&&playing)pause();}
+ document.addEventListener('visibilitychange',visibilityPause);
  configure();graph();drawStations(0);render();
- const controller={play,pause,seek,seekScene,setMode:changeMode,setDemand(value){if(!Number.isFinite(value)||value<=0)throw Error('Demanda inválida');solver.solve({...data,demand:value});stop();demand=value;configure();if(mode==='lab')renderLab();else if(mode==='practice')renderPractice();else render();},getState(){return {mode,demand,cursor,totalEvents:timeline.events.length,stage:snapshot(timeline,cursor).scene,playing,stations:result.stations.length,cycle:result.cycle,efficiency:result.efficiency};},destroy(){stop();mountpoint.remove();broken=true;}};
+ const controller={play,pause,seek,seekScene,setMode:changeMode,setDemand(value){if(!Number.isFinite(value)||value<=0)throw Error('Demanda inválida');solver.solve({...data,demand:value});stop();demand=value;configure();if(mode==='lab')renderLab();else if(mode==='practice')renderPractice();else render();},getState(){return {mode,demand,cursor,totalEvents:timeline.events.length,stage:snapshot(timeline,cursor).scene,playing,stations:result.stations.length,cycle:result.cycle,efficiency:result.efficiency};},destroy(){stop();clock?.destroy();document.removeEventListener('visibilitychange',visibilityPause);mountpoint.remove();broken=true;}};
  return Object.freeze(controller);
 }
-root.CLFSchoolNotebook=Object.freeze({mount,version:'0.9.0',previewStages:buildStages,compileStages,snapshot});
+root.CLFSchoolNotebook=Object.freeze({mount,version:'0.10.0',previewStages:buildStages,compileStages,snapshot});
 })(globalThis);

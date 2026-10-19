@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
-  "description": "Portable interactive learning resources with school-notebook default theme and synchronized reasoning",
+  "description": "Smooth school-notebook learning experiences with deterministic requestAnimationFrame choreography",
   "type": "module",
   "engines": {
     "node": ">=20"
