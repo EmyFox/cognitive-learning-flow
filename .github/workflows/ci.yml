@@ -16,3 +16,6 @@ jobs:
       - run: npm run build:example
       - run: npm run build:forecast:resources
       - run: npm run build:forecast:integrated
+      - run: npm run validate:operations
+      - run: npm run build:operations
+      - run: npm run build:operations:resources

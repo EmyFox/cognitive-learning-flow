@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
-  "description": "Portable cognitive learning resource generator, embeddable in existing HTML and workflows",
+  "description": "Portable learning skill with synchronized deterministic inventory, queue and production simulations",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -16,6 +16,9 @@
     "build:integrated": "node scripts/integrate-html.mjs examples/existing-page.html examples/pert-cpm.lesson.json dist/existing-integrated.html --force",
     "validate:forecast": "node scripts/validate-lesson.mjs examples/forecast-moving-average.lesson.json",
     "build:forecast:resources": "node scripts/build-resources.mjs examples/forecast-moving-average.lesson.json dist/forecast-kit",
-    "build:forecast:integrated": "node scripts/integrate-html.mjs examples/forecast-host.html examples/forecast-moving-average.lesson.json dist/forecast-integrated.html --force"
+    "build:forecast:integrated": "node scripts/integrate-html.mjs examples/forecast-host.html examples/forecast-moving-average.lesson.json dist/forecast-integrated.html --force",
+    "validate:operations": "node scripts/validate-lesson.mjs examples/operations-lab.lesson.json",
+    "build:operations": "node scripts/integrate-html.mjs examples/operations-host.html examples/operations-lab.lesson.json dist/operations-integrated.html --force",
+    "build:operations:resources": "node scripts/build-resources.mjs examples/operations-lab.lesson.json dist/operations-kit"
   }
 }

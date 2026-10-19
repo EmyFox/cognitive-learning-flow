@@ -67,7 +67,7 @@ test('reject duplicate point identifiers and invalid windows',()=>{
 });
 test('custom renderer extension registers and deregisters without changing host DOM',()=>{
  const {CLFKit}=setup(); assert.ok(CLFKit.resources.includes('visualization'));
- assert.equal(CLFKit.version,'0.5.0');
+ assert.equal(CLFKit.version,'0.6.0');
  const callback=()=>{};
  const unregister=CLFKit.registerVisualization('heatmap',callback);
  assert.throws(()=>CLFKit.registerVisualization('bar',callback),/no se reemplaza/);

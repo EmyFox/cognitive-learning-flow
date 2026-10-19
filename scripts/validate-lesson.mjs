@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // CLF v0.1 · Numeric validator independent of UI. Zero dependencies. No eval.
 import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
+import { dirname,resolve } from 'node:path';
+import { runInNewContext } from 'node:vm';
+const simContext={};
+runInNewContext(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)),'../runtime/simulations.js'),'utf8'),simContext);
+const SIM=simContext.CLFSim;
 
 export const near = (a, b, epsilon=1e-6) => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a-b) <= epsilon;
 export function insist(ok, message) { if (!ok) throw new Error(message); }
@@ -121,6 +126,23 @@ export function validateLesson(lesson) {
     insist(lesson[key]!==undefined,`Campo faltante: ${key}`);
   insist(Array.isArray(lesson.scenes)&&lesson.scenes.length>=3,'Se requieren al menos 3 escenas');
   insist(Array.isArray(lesson.assessment.items)&&lesson.assessment.items.length>0,'Faltan reactivos');
+  const simulations=new Map();
+  if(lesson.simulations!==undefined){
+    insist(Array.isArray(lesson.simulations),'simulations debe ser arreglo');
+    for(const spec of lesson.simulations){
+      insist(spec&&!simulations.has(spec.id),'Escenario duplicado: '+spec?.id);
+      SIM.validateScenario(spec);simulations.set(spec.id,spec);
+    }
+  }
+  if(lesson.groundTruth.simulations){
+    for(const [id,metrics] of Object.entries(lesson.groundTruth.simulations)){
+      insist(simulations.has(id),'Ground truth con simulación desconocida: '+id);
+      const calculated=SIM.solve(simulations.get(id)).metrics;
+      for(const [key,value] of Object.entries(metrics)){
+        insist(Number.isFinite(value)&&near(value,calculated[key],1e-5),'Indicador de simulación incorrecto: '+id+'.'+key);
+      }
+    }
+  }
   const visualizations=new Map();
   if(lesson.visualizations!==undefined){
     insist(Array.isArray(lesson.visualizations),'visualizations debe ser arreglo');
@@ -139,12 +161,16 @@ export function validateLesson(lesson) {
       visualizations.set(v.id,v);
     }
   }
-  const names=new Set(),allowed=new Set(['write','calculator','highlight','diagram','question','reveal','visualize']);
+  const names=new Set(),allowed=new Set(['write','calculator','highlight','diagram','question','reveal','visualize','scenario']);
   for(const scene of lesson.scenes) {
     insist(scene.id && !names.has(scene.id),`Escena repetida o sin id: ${scene.id}`);names.add(scene.id);
     insist(scene.phase && scene.goal && scene.rationale && Array.isArray(scene.actions)&&scene.actions.length,`Escena incompleta: ${scene.id}`);
     for(const action of scene.actions){
       insist(allowed.has(action.type),`Tipo de acción inválido: ${action.type}`);
+      if(action.type==='scenario'){
+        insist(typeof action.scenarioId==='string'&&simulations.has(action.scenarioId),'Escenario no encontrado: '+scene.id);
+        insist(action.frames===undefined||(Number.isInteger(action.frames)&&action.frames>=1&&action.frames<=90),'Fotogramas de simulación inválidos: '+scene.id);
+      }
       if(action.type==='visualize'){
         insist(typeof action.visualizationId==='string'&&visualizations.has(action.visualizationId),`Visualización no encontrada: ${scene.id}`);
         const v=visualizations.get(action.visualizationId);
@@ -166,6 +192,8 @@ export function validateLesson(lesson) {
         }
       }
     }
+    if(scene.checkpoint?.hints!==undefined)insist(Array.isArray(scene.checkpoint.hints)&&scene.checkpoint.hints.length>=1&&scene.checkpoint.hints.length<=5&&scene.checkpoint.hints.every(x=>typeof x==='string'&&x.trim()),'Pistas graduadas inválidas');
+    if(scene.checkpoint?.misconceptions!==undefined)insist(Array.isArray(scene.checkpoint.misconceptions)&&scene.checkpoint.misconceptions.every(x=>x&&['number','string'].includes(typeof x.value)&&typeof x.feedback==='string'&&x.feedback.trim()),'Diagnóstico inválido');
     if(scene.checkpoint && typeof scene.checkpoint.answer==='number')
       insist(Number.isFinite(scene.checkpoint.answer),'Respuesta del checkpoint no finita');
   }
