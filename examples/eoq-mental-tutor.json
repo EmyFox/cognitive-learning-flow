@@ -1,0 +1,1091 @@
+{
+  "id": "eoq-mental-workflow",
+  "title": "Lote económico EOQ | Aprende a resolver desde cero",
+  "subject": "Ingeniería Industrial · Gestión de inventarios",
+  "problem": "Una fábrica necesita abastecer 12 000 piezas cada año. Cada vez que emite un pedido al proveedor, paga $300 por trámites y transporte. Mantener una pieza en almacén durante un año cuesta $24. El producto se vende a $50 por pieza y la fábrica trabaja turnos de 8 horas. ¿Cuántas piezas conviene pedir cada vez, suponiendo demanda constante, pedidos instantáneos, sin faltantes y sin descuentos por volumen?",
+  "problemSentences": [
+    {
+      "text": "La fábrica vende 12 000 piezas al año.",
+      "dataRef": "D"
+    },
+    {
+      "text": "Cada pedido al proveedor cuesta $300 en trámites y transporte.",
+      "dataRef": "S"
+    },
+    {
+      "text": "Guardar una pieza durante un año cuesta $24.",
+      "dataRef": "H"
+    },
+    {
+      "text": "El producto se vende a $50 por pieza.",
+      "dataRef": "P"
+    },
+    {
+      "text": "La fábrica opera turnos de 8 horas.",
+      "dataRef": "SHIFT"
+    }
+  ],
+  "assumptions": [
+    "Demanda estable y conocida",
+    "Recepción inmediata del pedido",
+    "No se permiten faltantes",
+    "Costos por pedido y mantenimiento constantes",
+    "Sin descuentos por cantidad"
+  ],
+  "data": [
+    {
+      "id": "D",
+      "label": "Demanda anual",
+      "value": 12000,
+      "unit": "piezas/año",
+      "source": "La fábrica vende 12 000 piezas al año.",
+      "relevant": true,
+      "meaning": "Es la cantidad que debes abastecer durante un año."
+    },
+    {
+      "id": "S",
+      "label": "Costo de emitir un pedido",
+      "value": 300,
+      "unit": "MXN/pedido",
+      "source": "Cada pedido al proveedor cuesta $300 en trámites y transporte.",
+      "relevant": true,
+      "meaning": "Se paga cada vez que haces un pedido, no por cada pieza."
+    },
+    {
+      "id": "H",
+      "label": "Costo de mantener una pieza",
+      "value": 24,
+      "unit": "MXN/(pieza·año)",
+      "source": "Guardar una pieza durante un año cuesta $24.",
+      "relevant": true,
+      "meaning": "Permite medir qué cuesta almacenar más unidades."
+    },
+    {
+      "id": "P",
+      "label": "Precio de venta por pieza",
+      "value": 50,
+      "unit": "MXN/pieza",
+      "source": "El producto se vende a $50 por pieza.",
+      "relevant": false,
+      "meaning": "No interviene en este EOQ sin descuentos o variación del precio de compra."
+    },
+    {
+      "id": "SHIFT",
+      "label": "Turno por día",
+      "value": 8,
+      "unit": "horas/día",
+      "source": "La fábrica opera turnos de 8 horas.",
+      "relevant": false,
+      "meaning": "Se usa para capacidad o tiempos, no para el lote EOQ con datos anuales."
+    },
+    {
+      "id": "TD",
+      "label": "Demanda anual en un nuevo caso",
+      "value": 18000,
+      "unit": "piezas/año",
+      "source": "Caso nuevo: la demanda anual sería de 18 000 piezas.",
+      "relevant": true,
+      "meaning": "Dato del ejercicio de transferencia."
+    },
+    {
+      "id": "TS",
+      "label": "Costo por pedido en un nuevo caso",
+      "value": 200,
+      "unit": "MXN/pedido",
+      "source": "Caso nuevo: cada pedido cuesta $200.",
+      "relevant": true,
+      "meaning": "Dato del ejercicio de transferencia."
+    },
+    {
+      "id": "TH",
+      "label": "Costo de mantenimiento en un nuevo caso",
+      "value": 25,
+      "unit": "MXN/(pieza·año)",
+      "source": "Caso nuevo: mantener una unidad cuesta $25 al año.",
+      "relevant": true,
+      "meaning": "Dato del ejercicio de transferencia."
+    }
+  ],
+  "calculations": [
+    {
+      "id": "doubleDemand",
+      "expr": {
+        "op": "multiply",
+        "args": [
+          2,
+          {
+            "ref": "D"
+          }
+        ]
+      },
+      "expected": 24000,
+      "unit": "piezas/año",
+      "display": "2 × 12 000 = 24 000"
+    },
+    {
+      "id": "numerator",
+      "expr": {
+        "op": "multiply",
+        "args": [
+          {
+            "ref": "doubleDemand"
+          },
+          {
+            "ref": "S"
+          }
+        ]
+      },
+      "expected": 7200000,
+      "unit": "MXN·piezas/año (factor previo a dividir)",
+      "display": "2 × D × S = 2 × 12 000 × 300 = 7 200 000"
+    },
+    {
+      "id": "quotient",
+      "expr": {
+        "op": "divide",
+        "args": [
+          {
+            "ref": "numerator"
+          },
+          {
+            "ref": "H"
+          }
+        ]
+      },
+      "expected": 300000.0,
+      "unit": "piezas²",
+      "display": "7 200 000 ÷ 24 = 300 000 piezas²"
+    },
+    {
+      "id": "eoq",
+      "expr": {
+        "op": "sqrt",
+        "args": [
+          {
+            "ref": "quotient"
+          }
+        ]
+      },
+      "expected": 547.7225575051662,
+      "unit": "piezas/pedido",
+      "display": "√300 000 = 547.723 piezas por pedido"
+    },
+    {
+      "id": "annualOrders",
+      "expr": {
+        "op": "divide",
+        "args": [
+          {
+            "ref": "D"
+          },
+          {
+            "ref": "eoq"
+          }
+        ]
+      },
+      "expected": 21.908902300206645,
+      "unit": "pedidos/año",
+      "display": "12 000 ÷ 547.723 ≈ 21.91 pedidos/año"
+    },
+    {
+      "id": "ordering",
+      "expr": {
+        "op": "multiply",
+        "args": [
+          {
+            "ref": "annualOrders"
+          },
+          {
+            "ref": "S"
+          }
+        ]
+      },
+      "expected": 6572.670690061994,
+      "unit": "MXN/año",
+      "display": "21.909 × 300 ≈ $6 572.67 al año"
+    },
+    {
+      "id": "averageInventory",
+      "expr": {
+        "op": "divide",
+        "args": [
+          {
+            "ref": "eoq"
+          },
+          2
+        ]
+      },
+      "expected": 273.8612787525831,
+      "unit": "piezas promedio",
+      "display": "547.723 / 2 ≈ 273.861 piezas"
+    },
+    {
+      "id": "holding",
+      "expr": {
+        "op": "multiply",
+        "args": [
+          {
+            "ref": "averageInventory"
+          },
+          {
+            "ref": "H"
+          }
+        ]
+      },
+      "expected": 6572.670690061994,
+      "unit": "MXN/año",
+      "display": "(547.723 ÷ 2) × 24 ≈ $6 572.67 al año"
+    },
+    {
+      "id": "total",
+      "expr": {
+        "op": "add",
+        "args": [
+          {
+            "ref": "ordering"
+          },
+          {
+            "ref": "holding"
+          }
+        ]
+      },
+      "expected": 13145.341380123988,
+      "unit": "MXN/año",
+      "display": "$6 572.67 + $6 572.67 ≈ $13 145.34/año"
+    },
+    {
+      "id": "transferNumerator",
+      "expr": {
+        "op": "multiply",
+        "args": [
+          2,
+          {
+            "ref": "TD"
+          },
+          {
+            "ref": "TS"
+          }
+        ]
+      },
+      "expected": 7200000,
+      "unit": "factor intermedio",
+      "display": "2 × 18 000 × 200"
+    },
+    {
+      "id": "transferQuotient",
+      "expr": {
+        "op": "divide",
+        "args": [
+          {
+            "ref": "transferNumerator"
+          },
+          {
+            "ref": "TH"
+          }
+        ]
+      },
+      "expected": 288000.0,
+      "unit": "piezas²",
+      "display": "7 200 000 ÷ 25 = 288 000"
+    },
+    {
+      "id": "transferQ",
+      "expr": {
+        "op": "sqrt",
+        "args": [
+          {
+            "ref": "transferQuotient"
+          }
+        ]
+      },
+      "expected": 536.6563145999495,
+      "unit": "piezas/pedido",
+      "display": "√288 000 ≈ 536.66 piezas por pedido"
+    }
+  ],
+  "steps": [
+    {
+      "id": "goal",
+      "phase": "read",
+      "headline": "¿Qué estamos intentando encontrar?",
+      "prompt": "¿Qué pide este problema?",
+      "explanation": "Buscamos Q: cuántas piezas comprar en cada pedido. No pregunta por la demanda anual ni por el precio de venta.",
+      "reason": "Antes de calcular, identifica exactamente la incógnita. De lo contrario puedes calcular un número correcto que responda otra pregunta.",
+      "mentalRule": "Primero escribe: «Busco ____ en unidades de ____».",
+      "dataRefs": [],
+      "calculationRefs": [],
+      "math": "",
+      "errorTrap": "",
+      "analogy": "Es como decidir cuántas botellas comprar en cada visita, no cuántas consumirás en todo el año.",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué pide este problema?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Cuántas piezas solicitar en cada pedido",
+            "feedback": "Correcto: el lote es la decisión que optimiza los costos relevantes."
+          },
+          {
+            "id": "b",
+            "text": "Cuántas piezas se venden al año",
+            "feedback": "Eso ya está dado: 12 000. No es lo que queremos decidir."
+          },
+          {
+            "id": "c",
+            "text": "A cuánto se vende cada pieza",
+            "feedback": "El precio de venta no determina el lote económico en este modelo."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Observa la expresión «cada pedido».",
+          "La respuesta se expresa en piezas por pedido."
+        ]
+      },
+      "preview": "Lee la última pregunta del enunciado. Subraya qué quieres decidir, antes de utilizar ningún número."
+    },
+    {
+      "id": "findD",
+      "phase": "identify",
+      "headline": "Detecta la demanda anual",
+      "prompt": "¿Cuál dato corresponde a D?",
+      "explanation": "D = 12 000 piezas/año. «Al año» es indispensable: todos los costos de comparación deben tener la misma base temporal.",
+      "reason": "La letra D representa demanda en el modelo EOQ; asignar el costo a esa letra dañaría todas las sustituciones posteriores.",
+      "mentalRule": "Dato → símbolo → valor → unidad.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [],
+      "math": "D = 12 000 piezas/año",
+      "errorTrap": "Confundir demanda anual con tamaño del pedido.",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Cuál dato corresponde a D?",
+        "options": [
+          {
+            "id": "a",
+            "text": "12 000 piezas/año",
+            "feedback": "Correcto: es el ritmo anual de consumo."
+          },
+          {
+            "id": "b",
+            "text": "$300 por pedido",
+            "feedback": "Eso es S, costo fijo cada vez que compras."
+          },
+          {
+            "id": "c",
+            "text": "$24 por pieza y año",
+            "feedback": "Eso es H, costo de mantener inventario."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Busca cuántas unidades necesita abastecer la fábrica.",
+          "No es un costo: es una cantidad por año."
+        ]
+      },
+      "preview": "Identifica el dato que habla de unidades consumidas durante todo un año."
+    },
+    {
+      "id": "findS",
+      "phase": "identify",
+      "headline": "Detecta el costo de pedir",
+      "prompt": "¿Qué cantidad debes escribir en S?",
+      "explanation": "S = $300 por pedido. Aunque compres muchas o pocas piezas, se cobra este importe por emitir un pedido.",
+      "reason": "Se multiplica por la frecuencia de pedidos. Mezclarlo con un costo por pieza cambia el modelo.",
+      "mentalRule": "Pregúntate: «¿Cuándo se paga este costo?».",
+      "dataRefs": [
+        "S",
+        "H",
+        "P"
+      ],
+      "calculationRefs": [],
+      "math": "S = $300/pedido",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué cantidad debes escribir en S?",
+        "options": [
+          {
+            "id": "a",
+            "text": "$300/pedido",
+            "feedback": "Correcto. Es costo por evento de pedido."
+          },
+          {
+            "id": "b",
+            "text": "$24/pieza·año",
+            "feedback": "Eso es H: acumula al mantener inventario."
+          },
+          {
+            "id": "c",
+            "text": "$50/pieza",
+            "feedback": "Es precio de venta, no costo de pedir."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Busca el cargo que sucede cada vez que se hace un pedido.",
+          "La unidad termina en «/pedido»."
+        ]
+      },
+      "preview": "Localiza el costo que se paga cada vez que se emite una orden al proveedor."
+    },
+    {
+      "id": "findH",
+      "phase": "identify",
+      "headline": "Detecta el costo de almacenar",
+      "prompt": "¿Qué dato va en H?",
+      "explanation": "H = $24 por pieza por año. Almacenar dos piezas durante un año cuesta el doble que almacenar una, en este supuesto.",
+      "reason": "El costo de mantener crece con el tamaño del lote. Es el contrapeso del costo de pedir.",
+      "mentalRule": "«Mantener una unidad un año» identifica H.",
+      "dataRefs": [
+        "H",
+        "S"
+      ],
+      "calculationRefs": [],
+      "math": "H = $24/(pieza·año)",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué dato va en H?",
+        "options": [
+          {
+            "id": "a",
+            "text": "$24/(pieza·año)",
+            "feedback": "Correcto: corresponde al almacenamiento anual unitario."
+          },
+          {
+            "id": "b",
+            "text": "$300/pedido",
+            "feedback": "Costo de generar la orden: S."
+          },
+          {
+            "id": "c",
+            "text": "8 horas/día",
+            "feedback": "Tiempo de turno, no costo anual de inventario."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Encuentra la frase «guardar una pieza durante un año».",
+          "La unidad mezcla dinero, pieza y año."
+        ]
+      },
+      "preview": "Busca el costo asociado a conservar una unidad en inventario durante un año."
+    },
+    {
+      "id": "ignore",
+      "phase": "discard",
+      "headline": "Aprende a descartar distractores",
+      "prompt": "¿Qué dato NO entra en el EOQ clásico de este problema?",
+      "explanation": "El precio de venta de $50 no afecta el lote económico cuando no hay descuentos por volumen; tampoco el turno de 8 horas.",
+      "reason": "Los problemas suelen incluir datos útiles para otros cálculos. Poner todos los números en una fórmula es un error.",
+      "mentalRule": "Dato útil = cambia la respuesta de la pregunta actual.",
+      "dataRefs": [
+        "P",
+        "SHIFT"
+      ],
+      "calculationRefs": [],
+      "math": "",
+      "errorTrap": "Insertar el precio de venta en H o S solo porque aparece en el texto.",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué dato NO entra en el EOQ clásico de este problema?",
+        "options": [
+          {
+            "id": "a",
+            "text": "$50 de precio de venta",
+            "feedback": "Correcto: no entra en el costo de pedir ni en el de mantener asumidos."
+          },
+          {
+            "id": "b",
+            "text": "$300 por pedido",
+            "feedback": "Es S, indispensable."
+          },
+          {
+            "id": "c",
+            "text": "12 000 piezas al año",
+            "feedback": "Es D, indispensable."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Compara los símbolos D, S y H con cada dato.",
+          "No todo número del enunciado va en la fórmula."
+        ]
+      },
+      "preview": "Separa las cifras que el modelo necesita de las que pertenecen a otras preguntas."
+    },
+    {
+      "id": "units",
+      "phase": "units",
+      "headline": "Comprueba la unidad antes de operar",
+      "prompt": "¿Qué unidad debe tener Q al final?",
+      "explanation": "Q se interpreta como número de piezas compradas por pedido, no dinero ni piezas/año.",
+      "reason": "Revisar la dimensión objetivo detecta errores que un número decimal aparentemente correcto puede ocultar.",
+      "mentalRule": "Al terminar, lee el número y su unidad en voz alta.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [],
+      "math": "Q → piezas/pedido",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué unidad debe tener Q al final?",
+        "options": [
+          {
+            "id": "a",
+            "text": "piezas por pedido",
+            "feedback": "Correcto: es el tamaño del lote."
+          },
+          {
+            "id": "b",
+            "text": "pesos por año",
+            "feedback": "Eso describe costos, no cantidad a pedir."
+          },
+          {
+            "id": "c",
+            "text": "pedidos por año",
+            "feedback": "Eso es la frecuencia D/Q, no Q."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "El verbo es «comprar» y pregunta «cuántas piezas cada vez».",
+          "El resultado debe ser una cantidad por pedido."
+        ]
+      },
+      "preview": "Piensa cómo expresarías el resultado al encargado de compras."
+    },
+    {
+      "id": "formula",
+      "phase": "model",
+      "headline": "Elige el modelo correcto",
+      "prompt": "¿Qué fórmula calcula el lote económico EOQ?",
+      "explanation": "EOQ = √(2DS/H). D incrementa el lote óptimo, S favorece lotes grandes y H favorece lotes pequeños.",
+      "reason": "No se elige una fórmula por los símbolos disponibles: hay que confirmar que describe la decisión, los costos y los supuestos.",
+      "mentalRule": "Pregunta: «¿Qué costo aumenta si pido seguido y qué costo aumenta si guardo mucho?».",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [],
+      "math": "Q* = √(2 × D × S ÷ H)",
+      "errorTrap": "",
+      "analogy": "Pedir poco muchas veces cuesta trámites; pedir mucho pocas veces cuesta almacenamiento. El punto intermedio equilibra ambos.",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué fórmula calcula el lote económico EOQ?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Q* = √(2DS/H)",
+            "feedback": "Correcto: equilibra frecuencia de pedidos y inventario promedio."
+          },
+          {
+            "id": "b",
+            "text": "Q = D/S",
+            "feedback": "Dividir piezas/año por pesos/pedido carece de sentido como lote."
+          },
+          {
+            "id": "c",
+            "text": "Q = D × H",
+            "feedback": "Multiplica cantidades y costo de mantener, no equilibra costos."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "El EOQ clásico contiene una raíz cuadrada.",
+          "S y D en el numerador, H en el denominador."
+        ]
+      },
+      "preview": "Relaciona la decisión con dos fuerzas opuestas: pedir seguido y almacenar demasiado."
+    },
+    {
+      "id": "substitute",
+      "phase": "substitute",
+      "headline": "Sustituye una letra cada vez",
+      "prompt": "En 2 × D × S ÷ H, ¿qué reemplaza a S?",
+      "explanation": "S se reemplaza por 300, conservando intacto el resto de la expresión. Así no cambias operaciones mientras sustituyes números.",
+      "reason": "Sustituir símbolo por símbolo reduce confusiones cuando hay tres o más datos similares.",
+      "mentalRule": "Copia la fórmula y reemplaza solo una variable en cada línea.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [],
+      "math": "√[(2 × 12 000 × 300) ÷ 24]",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "En 2 × D × S ÷ H, ¿qué reemplaza a S?",
+        "options": [
+          {
+            "id": "a",
+            "text": "300",
+            "feedback": "Correcto: costo por pedido."
+          },
+          {
+            "id": "b",
+            "text": "24",
+            "feedback": "Corresponde a H y va en el divisor."
+          },
+          {
+            "id": "c",
+            "text": "12 000",
+            "feedback": "Corresponde a D y va multiplicando."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Busca el número con unidad $/pedido.",
+          "S es 300."
+        ]
+      },
+      "preview": "Antes de hacer cuentas, coloca cada valor debajo de la letra que representa."
+    },
+    {
+      "id": "doubleD",
+      "phase": "operate",
+      "headline": "Primera multiplicación: 2 × D",
+      "prompt": "Calcula 2 × 12 000. ¿Cuánto da?",
+      "preview": "Haz solo esta multiplicación. No mezcles aún el costo de pedido.",
+      "explanation": "2 × 12 000 = 24 000. Este es un resultado provisional: todavía falta multiplicar por S.",
+      "reason": "Primero calculamos un fragmento de la fórmula; escribirlo evita errores en la siguiente multiplicación.",
+      "mentalRule": "Una operación por línea: 2 × D → resultado provisional.",
+      "dataRefs": [
+        "D"
+      ],
+      "calculationRefs": [
+        "doubleDemand"
+      ],
+      "math": "2 × 12 000 = 24 000",
+      "errorTrap": "No te saltes este paso: una cifra intermedia tiene su propio significado.",
+      "analogy": "Divide una operación larga en acciones pequeñas y anota cada resultado.",
+      "check": {
+        "type": "number",
+        "prompt": "Calcula 2 × 12 000. ¿Cuánto da?",
+        "expectedRef": "doubleDemand",
+        "tolerance": 0,
+        "wrongFeedback": "No dividas ni uses el costo H; solo estamos duplicando D.",
+        "hints": [
+          "D es 12 000.",
+          "Duplica 12 000 y no introduzcas todavía el 300."
+        ]
+      }
+    },
+    {
+      "id": "numerator",
+      "phase": "operate",
+      "headline": "Opera primero el numerador",
+      "prompt": "Calcula 2 × 12 000 × 300. Escribe SOLO el número.",
+      "explanation": "Teníamos 2 × D = 24 000. Ahora 24 000 × S = 24 000 × 300 = 7 200 000. Aún no dividimos por H ni calculamos la raíz.",
+      "reason": "Respetar paréntesis evita dividir o sacar la raíz demasiado pronto.",
+      "mentalRule": "Dentro de √(numerador ÷ denominador), resuelve primero el producto agrupado.",
+      "dataRefs": [
+        "D",
+        "S"
+      ],
+      "calculationRefs": [
+        "numerator"
+      ],
+      "math": "2 × D × S = 7 200 000",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "number",
+        "prompt": "Calcula 2 × 12 000 × 300. Escribe SOLO el número.",
+        "expectedRef": "numerator",
+        "tolerance": 0,
+        "wrongFeedback": "No sumes D y S; aquí se multiplican.",
+        "hints": [
+          "Multiplica primero 2 × 12 000.",
+          "24 000 × 300."
+        ]
+      },
+      "preview": "Ya tenemos 24 000. Ahora multiplica SOLO ese resultado por S=300."
+    },
+    {
+      "id": "divide",
+      "phase": "operate",
+      "headline": "Divide antes de sacar la raíz",
+      "prompt": "Divide 7 200 000 entre 24. ¿Cuánto hay dentro de la raíz?",
+      "explanation": "7 200 000 ÷ 24 = 300 000. Ese valor intermedio no es el tamaño del pedido: falta √.",
+      "reason": "Dividir por H ajusta el costo de almacenamiento antes de calcular Q.",
+      "mentalRule": "Cuidado: el valor dentro de la raíz no es aún la respuesta.",
+      "dataRefs": [
+        "H"
+      ],
+      "calculationRefs": [
+        "quotient"
+      ],
+      "math": "7 200 000 ÷ 24 = 300 000",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "number",
+        "prompt": "Divide 7 200 000 entre 24. ¿Cuánto hay dentro de la raíz?",
+        "expectedRef": "quotient",
+        "tolerance": 0,
+        "wrongFeedback": "No multipliques por 24; H está en el denominador.",
+        "hints": [
+          "La división es numerador ÷ H.",
+          "La división se hace entre 24. No calcules la raíz todavía."
+        ]
+      },
+      "preview": "Toma lo obtenido en el paso anterior y divídelo por el costo de almacenamiento unitario."
+    },
+    {
+      "id": "sqrt",
+      "phase": "operate",
+      "headline": "Ahora sí: raíz cuadrada",
+      "prompt": "¿Cuánto vale aproximadamente √300 000? (tolerancia 0.1)",
+      "explanation": "√300 000 ≈ 547.723 piezas por pedido. La raíz deshace un cuadrado: es el único paso que produce el tamaño de lote.",
+      "reason": "El valor 300 000 es una magnitud intermedia; reportarlo como Q sería muy distinto del resultado óptimo.",
+      "mentalRule": "Marca la operación pendiente con un recuadro; no omitas la raíz.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [
+        "eoq"
+      ],
+      "math": "Q* = √300 000 ≈ 547.723",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "number",
+        "prompt": "¿Cuánto vale aproximadamente √300 000? (tolerancia 0.1)",
+        "expectedRef": "eoq",
+        "tolerance": 0.1,
+        "wrongFeedback": "Revisa que hayas usado raíz cuadrada, no división entre dos.",
+        "hints": [
+          "Prueba √300 000 en la calculadora.",
+          "Comprueba: 547² es un poco menor y 548² un poco mayor que 300 000."
+        ]
+      },
+      "preview": "Ahora sí aplica la operación externa que rodea toda la fracción."
+    },
+    {
+      "id": "round",
+      "phase": "interpret",
+      "headline": "Convierte a una decisión realizable",
+      "prompt": "Para pedidos de piezas enteras, ¿qué cantidad práctica queda más cerca del óptimo?",
+      "explanation": "El cálculo arroja Q* ≈ 547.723. Si no puedes pedir fracciones de pieza, 548 es una decisión práctica cercana.",
+      "reason": "El modelo devuelve un óptimo continuo, pero en la realidad las piezas suelen ser indivisibles.",
+      "mentalRule": "No confundas resultado exacto, redondeo y unidad.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [
+        "eoq"
+      ],
+      "math": "Q* ≈ 547.723 → 548 piezas/pedido",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "Para pedidos de piezas enteras, ¿qué cantidad práctica queda más cerca del óptimo?",
+        "options": [
+          {
+            "id": "a",
+            "text": "548 piezas por pedido",
+            "feedback": "Correcto: es el entero más cercano."
+          },
+          {
+            "id": "b",
+            "text": "300 000 piezas",
+            "feedback": "Es el valor dentro de la raíz, no su resultado."
+          },
+          {
+            "id": "c",
+            "text": "22 piezas",
+            "feedback": "Casi 22 es la frecuencia anual de pedidos, no el tamaño del lote."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Redondea 547.723 a unidades enteras.",
+          "La primera cifra decimal es 7: sube a 548."
+        ]
+      },
+      "preview": "Distingue el óptimo calculado del tamaño de lote que realmente puedes pedir."
+    },
+    {
+      "id": "frequency",
+      "phase": "verify",
+      "headline": "Encuentra pedidos por año",
+      "prompt": "Si cada pedido contiene Q* piezas, calcula D/Q*: ¿cuántos pedidos haces al año?",
+      "preview": "El cociente demanda/lote explica cuántas veces tendrás que pedir.",
+      "explanation": "D/Q* = 12 000/547.723 ≈ 21.909 pedidos por año. Si pides más unidades por orden, necesitas menos órdenes.",
+      "reason": "La demanda total se reparte en pedidos de Q piezas cada uno. Esta frecuencia es necesaria para hallar su costo anual.",
+      "mentalRule": "Número de pedidos = unidades requeridas al año ÷ unidades por pedido.",
+      "dataRefs": [
+        "D"
+      ],
+      "calculationRefs": [
+        "annualOrders"
+      ],
+      "math": "12 000 ÷ 547.723 ≈ 21.909 pedidos/año",
+      "errorTrap": "No te saltes este paso: una cifra intermedia tiene su propio significado.",
+      "analogy": "Divide una operación larga en acciones pequeñas y anota cada resultado.",
+      "check": {
+        "type": "number",
+        "prompt": "Si cada pedido contiene Q* piezas, calcula D/Q*: ¿cuántos pedidos haces al año?",
+        "expectedRef": "annualOrders",
+        "tolerance": 0.15,
+        "wrongFeedback": "No multipliques D × Q; la frecuencia debe disminuir si Q aumenta.",
+        "hints": [
+          "Divide 12 000 entre el lote EOQ antes de hacer cualquier multiplicación.",
+          "La cantidad debe rondar unas 22 órdenes al año."
+        ]
+      }
+    },
+    {
+      "id": "ordercost",
+      "phase": "verify",
+      "headline": "Comprueba costo de pedir",
+      "prompt": "Calcula el costo anual de emitir pedidos D/Q × S, usando Q* sin redondear. Aproxima a pesos.",
+      "explanation": "D/Q* ≈ 21.909 pedidos por año. Multiplicado por $300 por pedido da $6 572.67 al año.",
+      "reason": "Esta comprobación permite saber si el lote realmente equilibra los dos costos relevantes.",
+      "mentalRule": "Frecuencia de pedidos × costo por pedido = costo anual.",
+      "dataRefs": [
+        "D",
+        "S"
+      ],
+      "calculationRefs": [
+        "annualOrders",
+        "ordering"
+      ],
+      "math": "(12 000 ÷ 547.723) × 300 ≈ $6 572.67/año",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "number",
+        "prompt": "Calcula el costo anual de emitir pedidos D/Q × S, usando Q* sin redondear. Aproxima a pesos.",
+        "expectedRef": "ordering",
+        "tolerance": 1,
+        "wrongFeedback": "No multipliques Q* por S: Q* son piezas por pedido.",
+        "hints": [
+          "Calcula primero 12 000 / 547.723.",
+          "Multiplica ~21.909 por 300."
+        ]
+      },
+      "preview": "Para verificar, encuentra cuántos pedidos haces en un año y cuánto cuesta cada uno."
+    },
+    {
+      "id": "average",
+      "phase": "verify",
+      "headline": "Halla inventario promedio",
+      "prompt": "Si inicias un ciclo con Q* y terminas en cero, ¿cuántas piezas conservas en promedio?",
+      "preview": "Piensa en una línea que baja desde Q hasta 0: su altura promedio está a la mitad.",
+      "explanation": "Q*/2 = 547.723/2 ≈ 273.861 piezas promedio. Este promedio, no el máximo, es lo que entra al costo anual de mantener.",
+      "reason": "El inventario no permanece todo el año en el máximo. Como se consume progresivamente, su promedio es la mitad del lote.",
+      "mentalRule": "En consumo lineal sin faltantes: inventario promedio = Q/2.",
+      "dataRefs": [],
+      "calculationRefs": [
+        "averageInventory"
+      ],
+      "math": "547.723 ÷ 2 ≈ 273.861 piezas promedio",
+      "errorTrap": "No te saltes este paso: una cifra intermedia tiene su propio significado.",
+      "analogy": "Divide una operación larga en acciones pequeñas y anota cada resultado.",
+      "check": {
+        "type": "number",
+        "prompt": "Si inicias un ciclo con Q* y terminas en cero, ¿cuántas piezas conservas en promedio?",
+        "expectedRef": "averageInventory",
+        "tolerance": 0.15,
+        "wrongFeedback": "No utilices Q completo; estarías duplicando el costo de mantener.",
+        "hints": [
+          "Toma el tamaño EOQ continuo, no el número de órdenes.",
+          "Divide 547.723 entre dos."
+        ]
+      }
+    },
+    {
+      "id": "holdcost",
+      "phase": "verify",
+      "headline": "Comprueba costo de mantener",
+      "prompt": "Calcula (Q*/2) × H. Aproxima a pesos.",
+      "explanation": "El inventario promedio de un ciclo de consumo lineal es Q*/2 ≈ 273.861 piezas. Por $24/pieza·año resulta $6 572.67 al año.",
+      "reason": "En EOQ básico, el inventario baja de Q a cero durante cada ciclo; por eso el promedio es Q/2.",
+      "mentalRule": "Inventario promedio × costo anual por unidad = costo anual de mantener.",
+      "dataRefs": [
+        "H"
+      ],
+      "calculationRefs": [
+        "holding"
+      ],
+      "math": "(547.723 / 2) × 24 ≈ $6 572.67/año",
+      "errorTrap": "",
+      "analogy": "El inventario es como el nivel de agua de un tanque que baja linealmente de lleno a vacío: en promedio está a mitad.",
+      "check": {
+        "type": "number",
+        "prompt": "Calcula (Q*/2) × H. Aproxima a pesos.",
+        "expectedRef": "holding",
+        "tolerance": 1,
+        "wrongFeedback": "No uses Q completo: el inventario promedio es Q/2.",
+        "hints": [
+          "Primero divide 547.723 entre 2.",
+          "Multiplica el promedio por 24."
+        ]
+      },
+      "preview": "Para verificar, estima cuántas piezas hay en promedio guardadas a lo largo de un ciclo."
+    },
+    {
+      "id": "balance",
+      "phase": "verify",
+      "headline": "La verificación que descubre errores",
+      "prompt": "¿Qué debería ocurrir con ambos costos en Q*?",
+      "explanation": "En el EOQ básico, el costo anual de pedir y el costo anual de mantener son iguales en Q*. Aquí ambos son aproximadamente $6 572.67/año.",
+      "reason": "Si los costos difieren mucho, revisa unidades, raíz, numerador, redondeo y sustitución.",
+      "mentalRule": "Comprobación mecánica: C_pedir ≈ C_mantener.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [
+        "ordering",
+        "holding",
+        "total"
+      ],
+      "math": "C_pedir ≈ C_mantener ≈ $6 572.67/año",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Qué debería ocurrir con ambos costos en Q*?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Son aproximadamente iguales",
+            "feedback": "Correcto. Ésta es una verificación independiente del resultado."
+          },
+          {
+            "id": "b",
+            "text": "Pedir debe costar cero",
+            "feedback": "Hacer pedidos siempre cuesta en este modelo."
+          },
+          {
+            "id": "c",
+            "text": "Mantener inventario debe costar el doble",
+            "feedback": "No es la condición de equilibrio del EOQ clásico."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "Compara 6 572.67 con 6 572.67.",
+          "La señal de control es que ambos costos coincidan."
+        ]
+      },
+      "preview": "Compara los dos costos: en el óptimo del modelo básico existe una relación concreta."
+    },
+    {
+      "id": "meaning",
+      "phase": "interpret",
+      "headline": "Traduce el número a una instrucción",
+      "prompt": "¿Cómo comunicarías el resultado a compras?",
+      "explanation": "«Pide unas 548 piezas cada vez; con demanda estable de 12 000/año serían unas 21.9 órdenes/año». Los costos relevantes mínimos suman aproximadamente $13 145/año, excluyendo el costo de adquirir las piezas.",
+      "reason": "Los números deben terminar como una decisión operativa con sus supuestos, no como un resultado aislado.",
+      "mentalRule": "Resultado → unidad → decisión → supuesto.",
+      "dataRefs": [
+        "D",
+        "S",
+        "H"
+      ],
+      "calculationRefs": [
+        "eoq",
+        "annualOrders",
+        "total"
+      ],
+      "math": "Decisión: ~548 piezas/orden · Costos ≈ $13 145/año",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "choice",
+        "prompt": "¿Cómo comunicarías el resultado a compras?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Solicitar ~548 piezas por pedido",
+            "feedback": "Correcto: traduce Q* a una instrucción concreta."
+          },
+          {
+            "id": "b",
+            "text": "Solicitar 548 pedidos por día",
+            "feedback": "Confunde tamaño de lote, número de pedidos y escala temporal."
+          },
+          {
+            "id": "c",
+            "text": "El producto cuesta $13 145 por unidad",
+            "feedback": "Ese valor es costo ANUAL relevante agregado, no precio por unidad."
+          }
+        ],
+        "correctId": "a",
+        "hints": [
+          "La unidad correcta es «piezas por pedido».",
+          "Redacta «Solicitar 548 piezas cada vez»."
+        ]
+      },
+      "preview": "Convierte la cifra en una instrucción comprensible para el responsable de compras."
+    },
+    {
+      "id": "transfer",
+      "phase": "transfer",
+      "headline": "Resuelve un caso nuevo sin copiar",
+      "prompt": "Ahora D=18 000, S=200 y H=25. ¿Cuál sería Q* aproximadamente?",
+      "explanation": "Sustituyes en la misma estructura: √(2 × 18 000 × 200 ÷ 25) = √288 000 ≈ 536.66 piezas por pedido.",
+      "reason": "La meta es poder transferir el algoritmo a números nuevos sin memorizar 547.723.",
+      "mentalRule": "Secuencia fija: datos → letras → fórmula → producto → división → raíz → unidades → comprobación.",
+      "dataRefs": [
+        "TD",
+        "TS",
+        "TH"
+      ],
+      "calculationRefs": [
+        "transferNumerator",
+        "transferQuotient",
+        "transferQ"
+      ],
+      "math": "√[(2×18 000×200)/25] ≈ 536.66 piezas/pedido",
+      "errorTrap": "",
+      "analogy": "",
+      "check": {
+        "type": "number",
+        "prompt": "Ahora D=18 000, S=200 y H=25. ¿Cuál sería Q* aproximadamente?",
+        "expectedRef": "transferQ",
+        "tolerance": 0.6,
+        "wrongFeedback": "Si copiaste 548, estás memorizando el ejemplo anterior en vez de aplicar el método.",
+        "hints": [
+          "Escribe Q* = √(2DS/H) y sustituye los tres datos nuevos.",
+          "Primero 2×18 000×200=7 200 000; luego ÷25=288 000."
+        ]
+      },
+      "preview": "Los valores cambiaron, pero el orden de las operaciones es el mismo. No copies el resultado anterior."
+    }
+  ],
+  "outcomes": [
+    "Reconocer D, S y H y descartar distractores",
+    "Sustituir sin intercambiar unidades",
+    "Calcular numerador, división y raíz en ese orden",
+    "Verificar que ambos costos relevantes coinciden",
+    "Repetir la técnica con datos nuevos"
+  ]
+}

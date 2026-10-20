@@ -163,3 +163,16 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Migrar `runtime/player.js` completo al reloj compartido.
 - [ ] Tipografía matemática avanzada, matrices y fracciones apiladas como plugin opcional.
 - [ ] Automatizar Chromium y comprobaciones WCAG en CI.
+
+
+## v0.12 · Resolución mental y procedimental (implementada)
+
+- [x] Protocolo de decisión paso a paso: incógnita, datos, unidades, selección, sustitución, operación, verificación y transferencia.
+- [x] Cálculos intermedios vinculados a fuente y unidad; parser AST con lista cerrada de operaciones.
+- [x] 20 microetapas auditadas de EOQ; variantes y distractores con explicaciones por opción.
+- [x] Modos separados de explicación voluntaria y práctica con dos pistas, sin solución visible anticipadamente.
+- [x] Tutor embebible con CSS aislado, exportación autónoma offline y validación de respuestas.
+- [x] Pruebas matemáticas, de seguridad de contenido y navegador móvil/escritorio.
+- [ ] Diagnóstico numérico específico para cada error (por ejemplo, confundir Q con D/Q), en lugar de feedback general.
+- [ ] Pruebas con estudiantes para medir retención y transferencia real, evitando afirmaciones de eficacia sin datos.
+- [ ] Reusar la misma gramática para PERT/CPM, pronósticos, control estadístico y balanceo sin duplicar interfaz.
