@@ -53,8 +53,9 @@
       for(const ref of step.dataRefs||[])requireTrue(dataIds.has(ref), 'Referencia de dato no reconocida: '+ref);
       for(const ref of step.calculationRefs||[])requireTrue(calculationIds.has(ref), 'Referencia de cálculo no reconocida: '+ref);
       requireTrue(typeof step.reason==='string' && step.reason.length >= 20 && typeof step.mentalRule==='string' && step.mentalRule.length >= 8, 'La explicación debe justificar y enseñar la regla: '+step.id);
-      requireTrue(typeof step.headline==='string' && typeof step.prompt==='string' && typeof step.explanation==='string', 'Falta microexplicación');
+      requireTrue(typeof step.headline==='string' && typeof step.explanation==='string', 'Falta microexplicación');
       const q=step.check;
+      if(q===undefined)continue; // La clase explicativa no requiere preguntas ni respuestas.
       requireTrue(isObject(q) && typeof q.prompt==='string' && Array.isArray(q.hints) && q.hints.length >= 2, 'Cada microetapa requiere preguntas y pistas escalonadas');
       if (q.type==='choice') {
         requireTrue(Array.isArray(q.options) && q.options.length >= 2, 'Opciones insuficientes');

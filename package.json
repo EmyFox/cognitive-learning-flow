@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": true,
-  "description": "Pedagogical microstep tutoring with data lineage, safe calculation AST and school-notebook components",
+  "description": "Explanation-first notebook lessons with fully visible microsteps, optional autoplay, and no required quizzes",
   "type": "module",
   "engines": {
     "node": ">=20"

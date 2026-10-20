@@ -313,3 +313,14 @@ npm run build:fluent
 ```
 
 Ver especificación detallada, compatibilidad y limitaciones en `references/VECTOR_INK_AND_CLOCK.md`. Las librerías externas Motion, KaTeX y perfect-freehand son opcionales según el tipo de proyecto, no nuevas dependencias obligatorias.
+
+## v0.13 · Clase explicativa sin preguntas (predeterminada)
+
+La experiencia del tutor EOQ ahora **muestra directamente todos los detalles** de cada paso. La persona no responde cuestionarios, no desbloquea etapas ni debe hacer clic en «Muéstrame cómo». Los controles voluntarios permiten avanzar, retroceder y reproducir la clase a distintas velocidades.
+
+```sh
+npm run build:mental
+# Abrir dist/eoq-mental-tutor.html: 20 microetapas sin preguntas.
+```
+
+El contrato matemático acepta pasos sin `check`: las preguntas ya no son una obligación de autoría. Para habilitar práctica a propósito se puede usar `CLFMentalTutor.create(lesson, {allowPractice:true})` únicamente con reactivos completos; **la generación predeterminada no activa esa opción**. El CSS continúa encapsulado en Shadow DOM y la exportación continúa sin red ni dependencias externas.
