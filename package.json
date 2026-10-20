@@ -1,8 +1,8 @@
 {
   "name": "cognitive-learning-flow",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "private": true,
-  "description": "Reusable offline learning kit with shared smooth animation clock and vector equation ink",
+  "description": "Pedagogical microstep tutoring with data lineage, safe calculation AST and school-notebook components",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -24,6 +24,7 @@
     "build:school": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html",
     "build:neutral": "node scripts/build-html.mjs examples/pert-cpm.lesson.json dist/pert-cpm-neutral.html --theme neutral",
     "build:ink-demo": "node scripts/build-school-demo.mjs examples/line-balancing.school.json examples/school-notebook-host.html dist/school-line-balancing.html",
-    "build:fluent": "node scripts/integrate-html.mjs examples/smooth-classroom-host.html examples/pert-cpm.lesson.json dist/fluent-classroom.html --force"
+    "build:fluent": "node scripts/integrate-html.mjs examples/smooth-classroom-host.html examples/pert-cpm.lesson.json dist/fluent-classroom.html --force",
+    "build:mental": "node scripts/build-mental-tutor.mjs examples/eoq-mental-tutor.json dist/eoq-mental-tutor.html --force"
   }
 }

@@ -1,8 +1,25 @@
 # Cognitive Learning Flow
 
+## v0.12 · Tutor mecánico paso a paso (NUEVO)
+
+Un motor **pedagógico**, no solo visual: descompone problemas en decisiones verificables, origen de los datos, sustitución letra por letra, cálculos intermedios, unidades, verificación y transferencia a otro problema. La libreta escolar sigue siendo el aspecto predeterminado.
+
+```sh
+npm test
+npm run build:mental
+# Abrir dist/eoq-mental-tutor.html (offline)
+```
+
+El ejemplo EOQ incluye **20 microetapas** y dos modalidades: «Explícame despacio» y «Quiero intentarlo». Cada respuesta incorrecta conceptual ofrece su propia explicación; las respuestas numéricas tienen tolerancia y pistas antes de revelar el procedimiento. El motor de cálculo usa AST segura y verifica las soluciones de referencia. Usa el componente en cualquier HTML existente con el marcador `data-clf-mental-tutor`; su CSS está aislado en Shadow DOM. Consulta [el protocolo mental](references/MENTAL_WORKFLOW.md).
+
+**Límites:** es un recurso didáctico de referencia y no una prueba de aprendizaje validada; la retroalimentación de números es orientativa, no un diagnóstico exhaustivo de errores. Sin servidor no existe antifraude.
+
+---
+
+
 Skill independiente y reutilizable para agentes de IA que convierten procedimientos de solución en laboratorios HTML interactivos. **No pertenece a Checkfox ni requiere un frontend, backend o nube específicos.**
 
-> **Estado:** v0.8 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
+> **Estado:** v0.12 experimental. Incluye un primer generador HTML offline y un reproductor de escenas, más el contrato JSON y validador matemático. Los renderizadores especializados por dominio y la evaluación pedagógica con usuarios siguen en desarrollo.
 
 ## v0.8 · Libreta escolar como tema predeterminado
 
