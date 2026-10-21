@@ -2,6 +2,16 @@
 
 La meta **no** es revelar más pasos por segundo; es permitir que una persona sin experiencia **aprenda una secuencia reutilizable** y pueda repetirla sin copiar un resultado.
 
+## Prioridad: clase demostrativa sin interrogar al estudiante (v0.13)
+
+**Por defecto, la experiencia es explicativa y continua.** La persona observa la resolución completa, sin responder, validar, desbloquear, completar un cuestionario ni pulsar «Muéstrame cómo» en cada paso.
+
+- Mostrar de inmediato en cada microetapa **qué hacemos, por qué, de qué dato proviene, qué operación se ejecuta, qué unidad resulta, qué error evitamos y cómo lo comprobamos**, cuando aplique.
+- Dar controles voluntarios de **Reproducir/Pausar/Anterior/Siguiente/Velocidad**, que nunca condicionan las explicaciones a una respuesta.
+- Las pistas, respuestas, distractores y `check` son **opcionales** en el contrato de autoría y permanecen fuera del UI en modo estudio. Solo incluirlos cuando el usuario solicite explícitamente práctica o examen.
+- El caso de transferencia también se **resuelve completo** en demostración; no se pide al estudiante responder.
+- El proyecto consumidor decide el contenedor; conservar la libreta escolar por defecto y respetar CSS anfitrión.
+
 ## Guion mínimo obligatorio para problemas cuantitativos
 
 1. **Leer la pregunta**: escribir la incógnita y su unidad antes de buscar una fórmula.
@@ -14,7 +24,7 @@ La meta **no** es revelar más pasos por segundo; es permitir que una persona si
 8. **Operar por microacciones**: una operación matemática significativa por checkpoint; conservar los valores intermedios con etiqueta propia.
 9. **Interpretar**: convertir magnitud a acción real; diferenciar cantidades continuas de decisiones enteras.
 10. **Verificar independientemente**: repetir un cálculo por un camino diferente, comprobar identidades, unidades y orden de magnitud.
-11. **Transferir**: dar un segundo conjunto de datos; preguntar antes de mostrar la solución. El resultado nuevo debe ser derivado, no copiado.
+11. **Transferir**: resolver un segundo conjunto de datos completamente y explicar por qué el método sigue funcionando. Preguntar solo si se pidió práctica.
 
 Si el estudiante falla, no decir simplemente «incorrecto»; señalar la **clase del error**: confundir datos, omitir unidad, operación equivocada, paréntesis/orden, redondear prematuramente, interpretar magnitud como frecuencia, resultado sin comprobación.
 
@@ -22,7 +32,7 @@ Si el estudiante falla, no decir simplemente «incorrecto»; señalar la **clase
 
 - `data[]`: `id`, `label`, `value`, `unit`, `source`, `relevant`, `meaning`.
 - `calculations[]`: `id`, `expr` (AST aritmético seguro), `expected` auditado, `unit`, `display`.
-- `steps[]`: `id`, `phase`, `headline`, `prompt`, `preview` **sin respuesta**, `explanation` **posterior**, `reason`, `mentalRule`, `dataRefs`, `calculationRefs`, `check`.
+- `steps[]`: `id`, `phase`, `headline`, `explanation` **visible inmediatamente**, `reason`, `mentalRule`, `dataRefs`, `calculationRefs`. Opcionales exclusivamente para práctica: `prompt`, `preview`, `check`.
 - `check` numérico: `expectedRef` calculada desde el AST, `tolerance` con unidad explícita, `wrongFeedback`, dos pistas progresivas.
 - `check` conceptual: mínimo dos opciones, una correcta y *retroalimentación específica por distractor*.
 - `problemSentences[]` permiten destacar la fuente original del dato sin cambiar el HTML anfitrión.
@@ -31,10 +41,10 @@ Si el estudiante falla, no decir simplemente «incorrecto»; señalar la **clase
 
 ## Política de divulgación y práctica
 
-- Modo **estudio**: el alumno puede pedir «muéstrame cómo» en cualquier microetapa, pero la explicación completa no aparece antes de solicitarla.
-- Modo **práctica**: el alumno intenta responder primero; puede pedir dos pistas o equivocarse dos veces antes de solicitar la solución. Los pasos revelados se contabilizan como *vistos con ayuda*, no como *dominados*.
+- Modo **estudio (predeterminado)**: las explicaciones completas están visibles desde el principio en cada etapa. Se avanza manualmente o con reproducción automática sin preguntas ni bloqueos.
+- Modo **práctica (opt-in explícito)**: solo existe si el usuario lo solicita y `allowPractice:true`; entonces el alumno puede responder y pedir pistas. Los pasos revelados se contabilizan como *vistos con ayuda*, no como *dominados*.
 - Al cambiar de modo se reinician respuestas; no se conserva el estado de revelación de la demostración.
-- No incluir los resultados exactos en `preview`. Las pistas no deben entregar directamente la respuesta que se está evaluando.
+- Solo si se solicitó práctica: no incluir resultados exactos en `preview`. Las pistas no deben entregar directamente la respuesta que se está evaluando.
 - Nunca usar esta técnica como prueba de aprendizaje demostrada sin un estudio de usuarios.
 - Un HTML sin backend **no es una evaluación antifraude**: el JSON y el script contienen las soluciones aunque no se presenten anticipadamente en la UI.
 
@@ -44,7 +54,7 @@ Si el estudiante falla, no decir simplemente «incorrecto»; señalar la **clase
 - «¿Qué dato y por qué?» siempre antecede a «¿qué número?». Un dato sin fuente no debe entrar en la calculadora.
 - Si una fórmula exige una cadena larga, dividirla en estados intermedios con unidades y pruebas individuales.
 - No exigir memorizar el resultado del ejemplo; exigir repetir el procedimiento con datos nuevos.
-- Reducir gradualmente el andamiaje; las ayudas sirven para aprender, no para automatizar la elección del estudiante.
+- En una clase explicativa no esconder pasos ni reducir detalles por obligación. La reducción de ayudas corresponde al modo de práctica solicitado.
 
 ## Ejemplo EOQ validado
 

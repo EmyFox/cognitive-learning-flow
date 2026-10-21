@@ -3,23 +3,34 @@ name: cognitive-learning-flow
 description: Diseña experiencias HTML interactivas que enseñan procedimientos cuantitativos mediante razonamiento observable, cálculos verificables, escritura progresiva, diagramas y práctica guiada. Úsala al crear laboratorios didácticos de ingeniería, matemáticas, estadística, ciencias y preparación de exámenes.
 compatibility: Agentes compatibles con Agent Skills; HTML5, CSS y JavaScript. No requiere Checkfox ni servicios externos.
 metadata:
-  version: "0.12.0"
+  version: "0.13.0"
   opencode/slash: "true"
 ---
 
 # Cognitive Learning Flow (CLF)
+
+## PRIORIDAD ABSOLUTA v0.13 · Explicar sin preguntar
+
+**La experiencia predeterminada es una clase demostrativa, no un examen ni un cuestionario.** El usuario ve qué hace el profesor, de dónde sale cada valor, por qué se utiliza, cómo se introduce y opera en la calculadora, qué significa el resultado, qué errores se evitaron y cómo se comprueba. El estudiante no debe contestar, desbloquear, adivinar ni solicitar permiso para que aparezca la solución.
+
+- Ofrece explicación paso a paso con **anterior, siguiente, reproducir, pausar y velocidad**.
+- Abre cada escena directamente con su razonamiento detallado, fuentes, fórmula y operación.
+- No presentes `check.prompt`, opciones, hints ni botones «Comprobar» salvo que el usuario solicite explícitamente un modo de práctica opcional.
+- Si no se pide práctica, el JSON puede omitir `check` completamente; el renderizador debe tolerarlo.
+- Para el ejemplo EOQ: `npm run build:mental` debe generar una lección explicada **sin preguntas**.
+- La estética escolar y animación están al servicio de la comprensión, no al revés.
 
 ## PRIORIDAD v0.12 · Enseñar la resolución desde cero (por encima del espectáculo)
 
 **Antes de diseñar o animar, construye un método mental que una persona pueda seguir y repetir sola.** Consulta obligatoriamente `references/MENTAL_WORKFLOW.md` cuando el usuario pida explicaciones, enseñanza o tutoría.
 
 1. Pregunta objetivo y unidades, **antes** de presentar fórmulas o números calculados.
-2. Lee cada dato desde su fuente literal; obliga a identificar variable, valor, unidad y relevancia. Incluye al menos un distractor explicado si el caso lo permite.
+2. Lee cada dato desde su fuente literal; **muestra** variable, valor, unidad y relevancia. Incluye al menos un distractor explicado si el caso lo permite.
 3. Di **por qué** se selecciona cada fórmula y **cuándo no aplicaría** (supuestos). Evita la enseñanza de «poner números porque sí».
 4. Sustituye una letra por vez; cada operación matemática relevante tiene resultado intermedio, unidad, motivo y revisión.
-5. En la práctica, pregunta **antes** de enseñar. Muestra pistas graduadas y retroalimentación por error sin filtrar respuestas numéricas.
+5. **Solo si se solicita práctica**: ofrecer pistas y retroalimentación. Por defecto, enseñar todos los pasos sin preguntas.
 6. Tras calcular, interpreta la decisión y verifica el resultado por un segundo camino o relación física/económica.
-7. Termina con un **caso de transferencia diferente** que use el mismo método, no la misma respuesta.
+7. Termina **resolviendo** un caso de transferencia diferente con el mismo método; no pedir al estudiante contestarlo por defecto.
 8. Usa el diseño `school-notebook` como predeterminado, **pero la claridad cognitiva prevalece sobre el movimiento visual**. Un recurso que distraiga se elimina.
 
 **Entrega preferida:** `examples/eoq-mental-tutor.json` + `runtime/mental-steps.js` (AST matemático) + `runtime/mental-tutor.js` (componente opcional) + `scripts/build-mental-tutor.mjs` (HTML único offline). Estos archivos son independientes de los otros modos CLF; el proyecto anfitrión conserva su layout. Ejemplo:

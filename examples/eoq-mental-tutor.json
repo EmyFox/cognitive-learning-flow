@@ -307,7 +307,7 @@
     {
       "id": "goal",
       "phase": "read",
-      "headline": "¿Qué estamos intentando encontrar?",
+      "headline": "Identificamos exactamente qué necesitamos obtener",
       "prompt": "¿Qué pide este problema?",
       "explanation": "Buscamos Q: cuántas piezas comprar en cada pedido. No pregunta por la demanda anual ni por el precio de venta.",
       "reason": "Antes de calcular, identifica exactamente la incógnita. De lo contrario puedes calcular un número correcto que responda otra pregunta.",
@@ -1049,7 +1049,7 @@
     {
       "id": "transfer",
       "phase": "transfer",
-      "headline": "Resuelve un caso nuevo sin copiar",
+      "headline": "Aplicamos el mismo método a un segundo caso",
       "prompt": "Ahora D=18 000, S=200 y H=25. ¿Cuál sería Q* aproximadamente?",
       "explanation": "Sustituyes en la misma estructura: √(2 × 18 000 × 200 ÷ 25) = √288 000 ≈ 536.66 piezas por pedido.",
       "reason": "La meta es poder transferir el algoritmo a números nuevos sin memorizar 547.723.",

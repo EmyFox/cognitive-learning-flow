@@ -176,3 +176,12 @@ Convertir procedimientos cuantitativos verificados en lecciones HTML reproducibl
 - [ ] Diagnóstico numérico específico para cada error (por ejemplo, confundir Q con D/Q), en lugar de feedback general.
 - [ ] Pruebas con estudiantes para medir retención y transferencia real, evitando afirmaciones de eficacia sin datos.
 - [ ] Reusar la misma gramática para PERT/CPM, pronósticos, control estadístico y balanceo sin duplicar interfaz.
+
+## v0.13 · Explicación primero
+
+- [x] Clase de resolución visible desde el primer momento; 20 microetapas EOQ explicadas sin bloquear el avance.
+- [x] Reproducción automática voluntaria, pausa, velocidad y navegación independiente de respuestas.
+- [x] Contrato admite lecciones puramente explicativas sin cuestionarios.
+- [x] Práctica deshabilitada por defecto y habilitable explícitamente.
+- [x] Resumen de datos, operaciones, procedencia, unidades, errores y transferencia solucionada.
+- [ ] Narración sincronizada con voz opcional y controles accesibles auditados.
